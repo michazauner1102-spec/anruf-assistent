@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { STEPS } from "@/data/script";
 import { parseScript, scriptToText } from "@/lib/scriptParser";
+import type { Settings } from "@/lib/settings";
+import { WebsiteImport } from "./WebsiteImport";
 
 function DateiKnopf({ onText, label }: { onText: (text: string) => void; label: string }) {
   const ref = useRef<HTMLInputElement>(null);
@@ -33,11 +35,13 @@ export function ContextPanel({
   onKontextChange,
   skript,
   onSkriptChange,
+  settings,
 }: {
   kontext: string;
   onKontextChange: (wert: string) => void;
   skript: string;
   onSkriptChange: (wert: string) => void;
+  settings: Partial<Settings>;
 }) {
   const [zeigeSkript, setZeigeSkript] = useState(false);
   const erkannteSchritte = skript.trim() ? parseScript(skript).length : 0;
@@ -67,9 +71,17 @@ export function ContextPanel({
         <>
           <p className="panel__hinweis">
             Angaben zum eigenen Angebot: Leistungen, Preise, Abgrenzung zum Wettbewerb,
-            Formulierungen, die funktionieren. Geht als Hintergrundwissen ins Modell und
-            hat Vorrang vor den Standardangaben.
+            Formulierungen, die funktionieren. Eigene Website auslesen, Datei laden oder
+            einfügen. Geht als Hintergrundwissen ins Modell und hat Vorrang vor den
+            Standardangaben.
           </p>
+          <WebsiteImport
+            zweck="eigen"
+            aktuell={kontext}
+            onErgebnis={onKontextChange}
+            settings={settings}
+            platzhalter="Eigene Website, z. B. ihre-firma.de/leistungen"
+          />
           <div className="frage-row">
             <DateiKnopf label="Datei laden" onText={onKontextChange} />
           </div>

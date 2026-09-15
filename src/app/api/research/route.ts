@@ -1,6 +1,6 @@
 import { authHeaders, chatEndpoint, nichtErreichbarText, resolveConfig } from "@/lib/model";
 import { pruefeZiel } from "@/lib/urlGuard";
-import { RECHERCHE_PROMPT } from "@/lib/prompt";
+import { EIGEN_RECHERCHE_PROMPT, RECHERCHE_PROMPT } from "@/lib/prompt";
 import type { Settings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
@@ -103,10 +103,16 @@ function textAusHtml(html: string): string {
 
 export async function POST(request: Request) {
   let roh = "";
+  let eigenesAngebot = false;
   let ueberschreibung: Partial<Settings> | undefined;
   try {
-    const body = (await request.json()) as { url?: unknown; settings?: Partial<Settings> };
+    const body = (await request.json()) as {
+      url?: unknown;
+      zweck?: unknown;
+      settings?: Partial<Settings>;
+    };
     if (typeof body.url === "string") roh = body.url.trim();
+    eigenesAngebot = body.zweck === "eigen";
     ueberschreibung = body.settings;
   } catch {
     return Response.json({ error: "Ungültiger Request-Body." }, { status: 400 });
@@ -135,6 +141,8 @@ export async function POST(request: Request) {
   }
 
   const config = resolveConfig(ueberschreibung);
+  const anweisung = eigenesAngebot ? EIGEN_RECHERCHE_PROMPT : RECHERCHE_PROMPT;
+
   try {
     const body =
       config.provider === "openai"
@@ -144,7 +152,7 @@ export async function POST(request: Request) {
             temperature: 0.2,
             max_tokens: 400,
             messages: [
-              { role: "system", content: RECHERCHE_PROMPT },
+              { role: "system", content: anweisung },
               { role: "user", content: `<<<WEBSITE-ROHTEXT>>>\n${seitentext}\n<<<ENDE>>>` },
             ],
           }
@@ -154,7 +162,7 @@ export async function POST(request: Request) {
             think: false,
             options: { temperature: 0.2, num_predict: 400 },
             messages: [
-              { role: "system", content: RECHERCHE_PROMPT },
+              { role: "system", content: anweisung },
               { role: "user", content: `<<<WEBSITE-ROHTEXT>>>\n${seitentext}\n<<<ENDE>>>` },
             ],
           };

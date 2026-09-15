@@ -151,6 +151,7 @@ export default function Page() {
           onKontextChange={(w) => kontextStore.set(w)}
           skript={skriptText}
           onSkriptChange={(w) => skriptStore.set(w)}
+          settings={settings}
         />
       )}
       {panel === "nachbereitung" && (

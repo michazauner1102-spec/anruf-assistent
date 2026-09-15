@@ -18,9 +18,10 @@ fällt. Läuft lokal mit Ollama oder über eine Cloud-API.
 
 **Vorbereitung**
 
-- **Notizen** zum Gegenüber: einfügen oder dessen Website automatisch auslesen und
-  zusammenfassen lassen
-- **Kontext** zum eigenen Angebot, per Datei oder Einfügen
+- **Notizen** zum Gegenüber: dessen Website auslesen lassen oder einfügen
+- **Kontext** zum eigenen Angebot: eigene Website auslesen lassen, Datei laden oder
+  einfügen — die Auswertung achtet dabei auf Leistungen, Positionierung und Preise statt
+  auf Gesprächsaufhänger
 - **Eigenes Skript** in einem einfachen Textformat, ersetzt den mitgelieferten Ablauf
 
 **Nach dem Gespräch**
