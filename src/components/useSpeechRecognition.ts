@@ -14,6 +14,8 @@ const nichtsAbonnieren = () => () => {};
 const imBrowserVerfuegbar = () => getErkennungsKonstruktor() !== null;
 const aufServer = () => false;
 
+export type SpeechState = ReturnType<typeof useSpeechRecognition>;
+
 export function useSpeechRecognition() {
   const unterstuetzt = useSyncExternalStore(nichtsAbonnieren, imBrowserVerfuegbar, aufServer);
   const [laeuft, setLaeuft] = useState(false);

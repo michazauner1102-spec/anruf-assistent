@@ -6,7 +6,7 @@ import { settingsFuerRequest } from "@/lib/settings";
 import { matchFromSpeech } from "@/lib/search";
 import { stripWrappingQuotes } from "@/lib/text";
 import { CATEGORY_LABELS, CATEGORY_STRATEGY } from "@/data/objections";
-import { useSpeechRecognition } from "./useSpeechRecognition";
+import type { SpeechState } from "./useSpeechRecognition";
 import { Speech } from "./ScriptText";
 
 interface StreamEvent {
@@ -16,10 +16,12 @@ interface StreamEvent {
 }
 
 export function LiveListener({
+  speech,
   notizen,
   kontext,
   settings,
 }: {
+  speech: SpeechState;
   notizen: string;
   kontext: string;
   settings: Partial<Settings>;
@@ -35,7 +37,7 @@ export function LiveListener({
     starten,
     stoppen,
     zuruecksetzen,
-  } = useSpeechRecognition();
+  } = speech;
 
   const [eingabe, setEingabe] = useState("");
   const [antwort, setAntwort] = useState("");

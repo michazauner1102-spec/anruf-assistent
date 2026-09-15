@@ -140,3 +140,63 @@ Verkaufstelefonat nützlich ist: Firmenname, Standort, Größe/Team, Schwerpunkt
 Besonderheiten, erkennbare Technik (CRM, Chatbot, Portale), offene Stellen.
 Nur was wirklich im Text steht — nichts erfinden. Keine Einleitung, nur die
 Punkte. Enthält der Text keine Firmeninformationen, sag genau das.`;
+
+export const ERGEBNISSE = [
+  "Termin vereinbart",
+  "Rückruf vereinbart",
+  "Kein Interesse",
+  "Nicht erreicht",
+  "Unklar",
+] as const;
+export type Ergebnis = (typeof ERGEBNISSE)[number];
+
+/**
+ * Zusammenfassung fuers CRM. Wichtig: Das Mikrofon nimmt beide Seiten auf,
+ * der Mitschnitt ist also NICHT nach Sprechern getrennt. Das Modell darf
+ * deshalb nicht behaupten, wer was gesagt hat, wenn es nicht eindeutig ist.
+ */
+const ZUSAMMENFASSUNG_PROMPT = `Du fasst ein gerade beendetes Kaltakquise-Telefonat für das CRM zusammen.
+
+Wichtig zum Material: Der Mitschnitt stammt aus einem Raummikrofon und
+unterscheidet NICHT zwischen Anrufer und Gesprächspartner. Ordne Aussagen nur
+dann jemandem zu, wenn es aus dem Inhalt eindeutig hervorgeht. Zeilen mit
+"[Vorschlag]" waren Formulierungsvorschläge an den Anrufer — ob er sie gesagt
+hat, ist nicht bekannt. Behandle sie als Hinweis auf das Thema, nicht als
+gesprochenen Satz.
+
+Schreibe nüchtern und knapp auf Deutsch, genau in dieser Struktur, ohne
+Einleitung und ohne Fazit:
+
+Ergebnis: <eine Zeile>
+Lage beim Gesprächspartner: <2 bis 4 Stichpunkte: Ist-Zustand, Zahlen, Pain>
+Einwände: <Stichpunkte, oder ->
+Nächster Schritt: <konkret, mit Datum falls genannt>
+Aufhänger fürs nächste Gespräch: <1 bis 2 Stichpunkte>
+
+Regeln: Ausschließlich, was im Material steht. Nichts erfinden, nichts
+ausschmücken, nicht bewerten. Wurde ein Punkt nicht besprochen, schreibe einen
+Gedankenstrich. Keine Anrede, keine Höflichkeitsfloskeln.`;
+
+export function buildSummaryMessages(
+  verlauf: Zug[],
+  optionen: { ergebnis?: string; notizen?: string; kontext?: string } = {},
+): ChatNachricht[] {
+  const zeilen = verlauf.map((z) =>
+    z.rolle === "makler" ? `[Mitschnitt] ${z.text}` : `[Vorschlag] ${z.text}`,
+  );
+
+  const teile: string[] = [];
+  const recherche = (optionen.notizen ?? "").trim().slice(0, MAX_NOTIZEN);
+  if (recherche) {
+    teile.push(`Vorab-Recherche zur Firma (nicht Teil des Gesprächs):\n"""\n${recherche}\n"""`);
+  }
+  if (optionen.ergebnis) {
+    teile.push(`Der Anrufer hat das Ergebnis selbst so eingeordnet: ${optionen.ergebnis}. Übernimm das in die Zeile "Ergebnis".`);
+  }
+  teile.push(`Mitschnitt:\n${zeilen.join("\n") || "(kein Mitschnitt vorhanden)"}`);
+
+  return [
+    { role: "system", content: ZUSAMMENFASSUNG_PROMPT },
+    { role: "user", content: teile.join("\n\n") },
+  ];
+}

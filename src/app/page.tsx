@@ -9,7 +9,9 @@ import { NotesPanel } from "@/components/NotesPanel";
 import { Progress } from "@/components/Progress";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { Stepper } from "@/components/Stepper";
-import { CALENDLY_LABEL, CALENDLY_URL, STEPS } from "@/data/script";
+import { useSpeechRecognition } from "@/components/useSpeechRecognition";
+import { WrapUpPanel } from "@/components/WrapUpPanel";
+import { CALENDLY_LABEL, CALENDLY_URL, CHECKLIST, STEPS } from "@/data/script";
 import { parseScript } from "@/lib/scriptParser";
 import type { HealthState } from "@/lib/health";
 import { createLocalStore } from "@/lib/localStore";
@@ -20,13 +22,16 @@ const settingsStore = createLocalStore("anruf-assistent.settings", "{}");
 const kontextStore = createLocalStore("anruf-assistent.kontext", "");
 const skriptStore = createLocalStore("anruf-assistent.skript", "");
 
-type Panel = "keins" | "notizen" | "kontext" | "einstellungen";
+type Panel = "keins" | "notizen" | "kontext" | "nachbereitung" | "einstellungen";
 
 export default function Page() {
   const [stepIndex, setStepIndex] = useState(0);
   const [variantId, setVariantId] = useState(STEPS[0].variants?.[0].id ?? "");
   const [health, setHealth] = useState<HealthState | null>(null);
   const [panel, setPanel] = useState<Panel>("keins");
+  const [checkliste, setCheckliste] = useState<boolean[]>(() => CHECKLIST.map(() => false));
+  // Spracherkennung liegt hier, damit der Verlauf auch der Nachbereitung zur Verfügung steht.
+  const speech = useSpeechRecognition();
 
   // Notizen und Einstellungen bleiben allein in diesem Browser.
   const notizen = useSyncExternalStore(
@@ -121,6 +126,14 @@ export default function Page() {
           <button
             type="button"
             className="link-btn"
+            aria-pressed={panel === "nachbereitung"}
+            onClick={() => setPanel((p) => (p === "nachbereitung" ? "keins" : "nachbereitung"))}
+          >
+            Nachbereitung{speech.verlauf.length > 0 ? ` (${speech.verlauf.length})` : ""}
+          </button>
+          <button
+            type="button"
+            className="link-btn"
             aria-pressed={panel === "einstellungen"}
             onClick={() => setPanel((p) => (p === "einstellungen" ? "keins" : "einstellungen"))}
           >
@@ -138,6 +151,22 @@ export default function Page() {
           onKontextChange={(w) => kontextStore.set(w)}
           skript={skriptText}
           onSkriptChange={(w) => skriptStore.set(w)}
+        />
+      )}
+      {panel === "nachbereitung" && (
+        <WrapUpPanel
+          verlauf={speech.verlauf}
+          notizen={notizen}
+          settings={settings}
+          checkliste={checkliste}
+          onCheckliste={(i) =>
+            setCheckliste((v) => v.map((wert, idx) => (idx === i ? !wert : wert)))
+          }
+          onNeuesGespraech={() => {
+            speech.zuruecksetzen();
+            setCheckliste(CHECKLIST.map(() => false));
+            setStepIndex(0);
+          }}
         />
       )}
       {panel === "einstellungen" && (
@@ -158,7 +187,7 @@ export default function Page() {
         </section>
 
         <section className="spalte spalte--seite">
-          <LiveListener notizen={notizen} kontext={kontext} settings={settings} />
+          <LiveListener speech={speech} notizen={notizen} kontext={kontext} settings={settings} />
         </section>
       </div>
 
