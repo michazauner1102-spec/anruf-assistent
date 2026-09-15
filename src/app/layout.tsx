@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
+import { PROFILE } from "@/data/profile";
 import "./globals.css";
 
 const plex = IBM_Plex_Sans({
@@ -10,7 +11,7 @@ const plex = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "smartConsulting — Anruf-Assistent",
+  title: `${PROFILE.firma} — Anruf-Assistent`,
   description: "Live-Begleitung durch das Kaltakquise-Gespräch mit Einwand-Antworten.",
 };
 
