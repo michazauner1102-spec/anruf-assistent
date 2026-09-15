@@ -119,6 +119,14 @@ textarea {
   margin-bottom: 20px;
 }
 
+.panel__kopf {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
 .panel__hinweis {
   margin: 0 0 12px;
   color: var(--muted);

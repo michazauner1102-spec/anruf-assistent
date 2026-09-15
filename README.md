@@ -6,9 +6,15 @@ zeigt sofort die passende Antwort. Für alles, was nicht hinterlegt ist, formuli
 Sprachmodell eine Antwort — wahlweise **lokal über Ollama** oder über eine **Cloud-API mit
 eigenem Key**.
 
-Dazu ein Notizfeld: Recherche zur Firma einfügen oder deren Website automatisch auslesen
-lassen. Dieser Kontext fließt in die Antworten ein, sodass sie konkret werden statt
-allgemein.
+Zwei Eingabebereiche liefern dem Modell Kontext:
+
+- **Notizen** — Recherche zum *Gegenüber*: einfügen oder dessen Website automatisch
+  auslesen lassen.
+- **Kontext** — Angaben zum *eigenen* Angebot, plus optional ein **eigenes Skript**, das
+  den mitgelieferten Ablauf ersetzt.
+
+Das Modell kennt außerdem den **bisherigen Gesprächsverlauf**. Es wiederholt also nicht,
+was schon gefragt wurde, sondern setzt dort an, wo das Gespräch gerade steht.
 
 > Die mitgelieferten Inhalte stammen aus der Kaltakquise für KI-Automatisierung bei
 > Immobilienmaklern. Für einen anderen Anwendungsfall tauscht man drei Dateien aus —
@@ -52,6 +58,41 @@ zuverlässig), Aufruf über `localhost` (über eine WLAN-IP verweigert der Brows
 Mikrofon-Zugriff, weil das kein sicherer Kontext ist), und beim ersten Klick die
 Mikrofon-Erlaubnis.
 
+## Der Gesprächsverlauf
+
+Jede erkannte Äußerung des Gegenübers und jeder genutzte Vorschlag wandern in eine
+Historie, die als echte Chat-Nachrichten ans Modell geht — nicht als Textblock im Prompt.
+Das ändert das Verhalten spürbar:
+
+| Situation | ohne Verlauf | mit Verlauf |
+|---|---|---|
+| „Wir haben schon so ein System." | Rückfrage nach der Qualifizierung | dieselbe Rückfrage |
+| Gegenüber antwortet: „Das schickt eine Mail, dann melde ich mich selbst." | wieder eine allgemeine Rückfrage | „Genau da liegt der Zeitfresser. Wie viel Zeit verbringen Sie täglich damit, die Rückmeldungen zu sichten?" |
+
+Beim ersten Druck heißt der Knopf **Modell fragen**, danach **Anderer Zug**. Jeder weitere
+Druck bekommt die bereits vorgeschlagenen Formulierungen mitgeschickt — inklusive der
+hinterlegten Standardantwort — und muss einen anderen Weg gehen: eine andere Ebene
+ansprechen, konkreter nachfassen oder zum Termin führen.
+
+## Eigenes Skript
+
+Im Bereich **Kontext → Eigenes Skript** lässt sich der Ablauf ersetzen, per Datei oder
+Einfügen. Das Format ist bewusst simpel:
+
+```
+# Begrüßung
+Guten Tag [Name], kurz gestört?
+> Lächeln nicht vergessen.
+
+# Aufhänger
+Ich habe gesehen, dass [Thema] bei Ihnen läuft.
+```
+
+`#` beginnt einen Schritt, `>` ist ein Hinweis, alles andere ist ein gesprochener Satz.
+Text in eckigen Klammern wird als Einsetzstelle hervorgehoben. Die Schrittzahl und die
+Fortschrittsanzeige passen sich automatisch an; ein leeres Feld stellt auf das
+mitgelieferte Skript zurück.
+
 ## Modell einstellen
 
 Zwei Wege, beide gleichwertig:
@@ -85,8 +126,9 @@ den Rechner — bewusst und sichtbar:
 3. **Website auslesen:** Die angegebene Adresse wird vom Server abgerufen. Interne Adressen
    (`localhost`, private IP-Bereiche) sind gesperrt.
 
-Die Notizen liegen ausschließlich im `localStorage` des Browsers — es gibt keine Datenbank
-und kein Backend.
+Notizen, eigener Kontext und eigenes Skript liegen ausschließlich im `localStorage` des
+Browsers — es gibt keine Datenbank und kein Backend. Mit einem Cloud-Modell gehen Notizen,
+Kontext und Gesprächsverlauf an den Anbieter.
 
 ## Auf den eigenen Fall anpassen
 
@@ -159,10 +201,13 @@ src/
   app/api/matcher-test/           GET, Regressionstest der Erkennung
   components/Stepper.tsx          Gesprächsschritt
   components/LiveListener.tsx     Mithören, Treffer, Modell-Abfrage
-  components/NotesPanel.tsx       Firmen-Notizen und Website-Auslese
+  components/NotesPanel.tsx       Recherche zum Gegenüber, Website-Auslese
+  components/ContextPanel.tsx     eigener Kontext und eigenes Skript
   components/SettingsPanel.tsx    Anbieter, Modell, API-Key
   lib/model.ts                    Ollama und OpenAI-kompatibel hinter einer Schnittstelle
-  lib/prompt.ts                   System-Prompt inkl. Notizen-Kontext
+  lib/prompt.ts                   System-Prompt, Notizen, Verlauf als Chat-Historie
+  lib/scriptParser.ts             Textformat für eigene Skripte
+  lib/conversation.ts             Gesprächsverlauf
   lib/search.ts                   beide Trefferverfahren
   data/profile.ts                 hier zuerst anpassen (lokal, nicht im Repo)
   data/profile.example.ts         Vorlage dafür

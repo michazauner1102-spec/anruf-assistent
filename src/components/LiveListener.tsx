@@ -17,9 +17,11 @@ interface StreamEvent {
 
 export function LiveListener({
   notizen,
+  kontext,
   settings,
 }: {
   notizen: string;
+  kontext: string;
   settings: Partial<Settings>;
 }) {
   const {
@@ -28,6 +30,8 @@ export function LiveListener({
     letzteAeusserung,
     vorlaeufig,
     fehler,
+    verlauf,
+    verlaufErgaenzen,
     starten,
     stoppen,
     zuruecksetzen,
@@ -38,6 +42,9 @@ export function LiveListener({
   const [laedt, setLaedt] = useState(false);
   const [modellFehler, setModellFehler] = useState<string | null>(null);
   const eingabeAktivRef = useRef(false);
+  /** Was in dieser Situation schon vorgeschlagen wurde — verhindert Wiederholungen. */
+  const [bereits, setBereits] = useState<string[]>([]);
+  const letzteFrageRef = useRef("");
 
   // Entscheidend fuer die Trefferqualitaet: gematcht wird der Satz, der GERADE
   // gesprochen wird — nicht der rollende Gesamtpuffer. Sonst gewinnt ein Einwand
@@ -53,12 +60,18 @@ export function LiveListener({
     }
   }, [laeuft, letzteAeusserung]);
 
-  const modellName = laedt ? "…" : "Modell fragen";
+
   const kontextAktiv = notizen.trim().length > 0;
 
   const fragen = async () => {
     const objection = eingabe.trim();
     if (!objection || laedt) return;
+
+    // Neuer Einwand: die Vorschlagshistorie beginnt von vorn. Die hinterlegte
+    // Antwort zaehlt als bereits gezeigt, damit das Modell sie nicht wiederholt.
+    const neueFrage = objection !== letzteFrageRef.current;
+    const vorherige = neueFrage ? (treffer ? [treffer.objection.answer] : []) : bereits;
+    letzteFrageRef.current = objection;
 
     setLaedt(true);
     setModellFehler(null);
@@ -71,6 +84,9 @@ export function LiveListener({
         body: JSON.stringify({
           objection,
           notes: notizen,
+          kontext,
+          verlauf,
+          bereits: vorherige,
           settings: settingsFuerRequest(settings),
         }),
       });
@@ -108,13 +124,23 @@ export function LiveListener({
           }
         }
       }
-      setAntwort(stripWrappingQuotes(gesammelt));
+
+      const fertig = stripWrappingQuotes(gesammelt);
+      setAntwort(fertig);
+      if (fertig) {
+        setBereits([...vorherige, fertig]);
+        // Als eigener Zug in den Verlauf — beim naechsten Mal weiss das Modell,
+        // worauf der Gespraechspartner gerade reagiert.
+        verlaufErgaenzen("micha", fertig);
+      }
     } catch {
       setModellFehler("Verbindung zur App unterbrochen.");
     } finally {
       setLaedt(false);
     }
   };
+
+  const hatVorschlag = antwort !== "" || bereits.length > (treffer ? 1 : 0);
 
   return (
     <section className="live" aria-label="Mithören">
@@ -208,7 +234,7 @@ export function LiveListener({
           onClick={() => void fragen()}
           disabled={laedt || eingabe.trim() === ""}
         >
-          {modellName}
+          {laedt ? "…" : hatVorschlag ? "Anderer Zug" : "Modell fragen"}
         </button>
       </div>
 

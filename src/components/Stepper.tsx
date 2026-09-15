@@ -1,21 +1,23 @@
 "use client";
 
-import { STEPS } from "@/data/script";
+import { STEPS, type Step } from "@/data/script";
 import { ScriptText, Speech } from "./ScriptText";
 
 export function Stepper({
+  steps = STEPS,
   index,
   onIndexChange,
   variantId,
   onVariantChange,
 }: {
+  steps?: Step[];
   index: number;
   onIndexChange: (index: number) => void;
   variantId: string;
   onVariantChange: (id: string) => void;
 }) {
-  const last = STEPS.length - 1;
-  const current = STEPS[index];
+  const last = steps.length - 1;
+  const current = steps[Math.min(index, last)];
   const variant = current.variants?.find((v) => v.id === variantId) ?? current.variants?.[0];
   const lines = variant ? variant.lines : (current.lines ?? []);
 
@@ -23,7 +25,7 @@ export function Stepper({
     <section aria-label="Gesprächsablauf">
       <div className="card card--step">
         <p className="progress">
-          Schritt {index + 1} von {STEPS.length} · {current.title}
+          Schritt {Math.min(index, last) + 1} von {steps.length} · {current.title}
         </p>
 
         {current.variants && (

@@ -6,7 +6,8 @@ import {
   nichtErreichbarText,
   resolveConfig,
 } from "@/lib/model";
-import { buildSystemPrompt } from "@/lib/prompt";
+import { buildMessages } from "@/lib/prompt";
+import type { Zug } from "@/lib/conversation";
 import type { Settings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
@@ -18,16 +19,35 @@ const MAX_EINWAND = 500;
 export async function POST(request: Request) {
   let objection = "";
   let notizen = "";
+  let kontext = "";
+  let verlauf: Zug[] = [];
+  let bereits: string[] = [];
   let ueberschreibung: Partial<Settings> | undefined;
 
   try {
     const body = (await request.json()) as {
       objection?: unknown;
       notes?: unknown;
+      kontext?: unknown;
+      verlauf?: unknown;
+      bereits?: unknown;
       settings?: Partial<Settings>;
     };
     if (typeof body.objection === "string") objection = body.objection.trim();
     if (typeof body.notes === "string") notizen = body.notes;
+    if (typeof body.kontext === "string") kontext = body.kontext;
+    if (Array.isArray(body.verlauf)) {
+      verlauf = body.verlauf.filter(
+        (z): z is Zug =>
+          !!z &&
+          typeof z === "object" &&
+          typeof (z as Zug).text === "string" &&
+          ((z as Zug).rolle === "makler" || (z as Zug).rolle === "micha"),
+      );
+    }
+    if (Array.isArray(body.bereits)) {
+      bereits = body.bereits.filter((b): b is string => typeof b === "string");
+    }
     ueberschreibung = body.settings;
   } catch {
     return Response.json({ error: "Ungültiger Request-Body." }, { status: 400 });
@@ -60,7 +80,9 @@ export async function POST(request: Request) {
     upstream = await fetch(chatEndpoint(config), {
       method: "POST",
       headers: authHeaders(config),
-      body: JSON.stringify(chatBody(config, buildSystemPrompt(notizen), objection)),
+      body: JSON.stringify(
+        chatBody(config, buildMessages(objection, { notizen, kontext, verlauf, bereits })),
+      ),
       signal: controller.signal,
       cache: "no-store",
     });

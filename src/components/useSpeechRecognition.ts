@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { type Erkennung, fehlerText, getErkennungsKonstruktor } from "@/lib/speech";
+import type { Zug } from "@/lib/conversation";
 
 /** So viel Gesprochenes wird vorgehalten — mehr braucht die Trefferlogik nicht. */
 const MAX_LAENGE = 400;
@@ -18,6 +19,7 @@ export function useSpeechRecognition() {
   const [laeuft, setLaeuft] = useState(false);
   const [gehoert, setGehoert] = useState("");
   const [letzteAeusserung, setLetzteAeusserung] = useState("");
+  const [verlauf, setVerlauf] = useState<Zug[]>([]);
   const [vorlaeufig, setVorlaeufig] = useState("");
   const [fehler, setFehler] = useState<string | null>(null);
 
@@ -63,6 +65,9 @@ export function useSpeechRecognition() {
         // sich deshalb nicht aus dem Gesamttext herausschneiden, sie muss hier
         // beim Eintreffen gemerkt werden.
         setLetzteAeusserung(sauber.slice(-MAX_LAENGE));
+        // Gespraechsverlauf hier fuehren, nicht in einem Effect: der Zug entsteht
+        // genau in diesem Callback, wenn die Erkennung einen Satz abschliesst.
+        setVerlauf((bisher) => [...bisher, { rolle: "makler" as const, text: sauber }].slice(-40));
       }
       setVorlaeufig(neuVorlaeufig);
     };
@@ -102,6 +107,7 @@ export function useSpeechRecognition() {
     setGehoert("");
     setVorlaeufig("");
     setLetzteAeusserung("");
+    setVerlauf([]);
   }, []);
 
   useEffect(
@@ -112,6 +118,13 @@ export function useSpeechRecognition() {
     [],
   );
 
+  /** Fuer Zuege, die nicht aus dem Mikrofon kommen — etwa ein genutzter Vorschlag. */
+  const verlaufErgaenzen = useCallback((rolle: Zug["rolle"], text: string) => {
+    const sauber = text.trim();
+    if (!sauber) return;
+    setVerlauf((bisher) => [...bisher, { rolle, text: sauber }].slice(-40));
+  }, []);
+
   return {
     unterstuetzt,
     laeuft,
@@ -119,6 +132,8 @@ export function useSpeechRecognition() {
     letzteAeusserung,
     vorlaeufig,
     fehler,
+    verlauf,
+    verlaufErgaenzen,
     starten,
     stoppen,
     zuruecksetzen,

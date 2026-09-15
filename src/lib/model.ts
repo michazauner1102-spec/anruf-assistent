@@ -75,14 +75,12 @@ export function chatEndpoint(config: ModelConfig): string {
     : `${config.baseUrl}/api/chat`;
 }
 
-export function chatBody(config: ModelConfig, systemPrompt: string, objection: string) {
-  const messages = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: `Der Makler sagt gerade: "${objection}"` },
-  ];
-
+export function chatBody(
+  config: ModelConfig,
+  messages: { role: string; content: string }[],
+) {
   if (config.provider === "openai") {
-    return { model: config.model, stream: true, temperature: 0.5, max_tokens: 200, messages };
+    return { model: config.model, stream: true, temperature: 0.6, max_tokens: 200, messages };
   }
 
   return {
@@ -91,7 +89,7 @@ export function chatBody(config: ModelConfig, systemPrompt: string, objection: s
     // Ohne think:false verbraucht ein Thinking-Modell (z. B. gemma4) das gesamte
     // Token-Budget mit internem Denken und liefert leeren Inhalt zurueck.
     think: false,
-    options: { temperature: 0.5, num_predict: 200 },
+    options: { temperature: 0.6, num_predict: 200 },
     messages,
   };
 }

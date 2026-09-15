@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { ContextPanel } from "@/components/ContextPanel";
 import { CopyButton } from "@/components/CopyButton";
 import { HealthBanner } from "@/components/HealthBanner";
 import { LiveListener } from "@/components/LiveListener";
@@ -9,14 +10,17 @@ import { Progress } from "@/components/Progress";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { Stepper } from "@/components/Stepper";
 import { CALENDLY_LABEL, CALENDLY_URL, STEPS } from "@/data/script";
+import { parseScript } from "@/lib/scriptParser";
 import type { HealthState } from "@/lib/health";
 import { createLocalStore } from "@/lib/localStore";
 import { settingsFuerRequest, type Settings } from "@/lib/settings";
 
 const notizStore = createLocalStore("anruf-assistent.notizen", "");
 const settingsStore = createLocalStore("anruf-assistent.settings", "{}");
+const kontextStore = createLocalStore("anruf-assistent.kontext", "");
+const skriptStore = createLocalStore("anruf-assistent.skript", "");
 
-type Panel = "keins" | "notizen" | "einstellungen";
+type Panel = "keins" | "notizen" | "kontext" | "einstellungen";
 
 export default function Page() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -35,6 +39,22 @@ export default function Page() {
     settingsStore.getSnapshot,
     settingsStore.getServerSnapshot,
   );
+  const kontext = useSyncExternalStore(
+    kontextStore.subscribe,
+    kontextStore.getSnapshot,
+    kontextStore.getServerSnapshot,
+  );
+  const skriptText = useSyncExternalStore(
+    skriptStore.subscribe,
+    skriptStore.getSnapshot,
+    skriptStore.getServerSnapshot,
+  );
+  // Ein eigenes Skript ersetzt den mitgelieferten Ablauf, sobald es Schritte ergibt.
+  const schritte = useMemo(() => {
+    const eigene = skriptText.trim() ? parseScript(skriptText) : [];
+    return eigene.length > 0 ? eigene : STEPS;
+  }, [skriptText]);
+
   const settings = useMemo<Partial<Settings>>(() => {
     try {
       return JSON.parse(settingsRoh) as Partial<Settings>;
@@ -80,7 +100,7 @@ export default function Page() {
     <main className="app">
       <header className="header">
         <h1>Anruf-Assistent</h1>
-        <Progress index={stepIndex} total={STEPS.length} />
+        <Progress index={Math.min(stepIndex, schritte.length - 1)} total={schritte.length} />
         <nav className="kopf-aktionen">
           <button
             type="button"
@@ -89,6 +109,14 @@ export default function Page() {
             onClick={() => setPanel((p) => (p === "notizen" ? "keins" : "notizen"))}
           >
             Notizen{notizen.trim() ? " ●" : ""}
+          </button>
+          <button
+            type="button"
+            className="link-btn"
+            aria-pressed={panel === "kontext"}
+            onClick={() => setPanel((p) => (p === "kontext" ? "keins" : "kontext"))}
+          >
+            Kontext{kontext.trim() || skriptText.trim() ? " ●" : ""}
           </button>
           <button
             type="button"
@@ -104,6 +132,14 @@ export default function Page() {
       {panel === "notizen" && (
         <NotesPanel notizen={notizen} onNotizenChange={notizenSetzen} settings={settings} />
       )}
+      {panel === "kontext" && (
+        <ContextPanel
+          kontext={kontext}
+          onKontextChange={(w) => kontextStore.set(w)}
+          skript={skriptText}
+          onSkriptChange={(w) => skriptStore.set(w)}
+        />
+      )}
       {panel === "einstellungen" && (
         <SettingsPanel settings={settings} onChange={settingsSetzen} />
       )}
@@ -113,6 +149,7 @@ export default function Page() {
       <div className="spalten">
         <section className="spalte">
           <Stepper
+            steps={schritte}
             index={stepIndex}
             onIndexChange={setStepIndex}
             variantId={variantId}
@@ -121,7 +158,7 @@ export default function Page() {
         </section>
 
         <section className="spalte spalte--seite">
-          <LiveListener notizen={notizen} settings={settings} />
+          <LiveListener notizen={notizen} kontext={kontext} settings={settings} />
         </section>
       </div>
 
