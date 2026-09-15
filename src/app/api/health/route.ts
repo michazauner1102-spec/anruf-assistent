@@ -1,5 +1,6 @@
 import { authHeaders, istCloud, normalizeModelName, resolveConfig } from "@/lib/model";
 import type { Settings } from "@/lib/settings";
+import { pruefeZiel } from "@/lib/urlGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,16 @@ export async function POST(request: Request) {
     ueberschreibung = body.settings;
   } catch {
     ueberschreibung = undefined;
+  }
+
+  if (ueberschreibung?.baseUrl) {
+    const zielOk = await pruefeZiel(ueberschreibung.baseUrl, { erlaubeLoopback: true });
+    if (!zielOk.ok) {
+      return Response.json(
+        { ok: false, modelFound: false, provider: "ollama", model: "", cloud: false, error: zielOk.grund },
+        { status: 400 },
+      );
+    }
   }
 
   const config = resolveConfig(ueberschreibung);

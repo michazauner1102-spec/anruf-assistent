@@ -1,4 +1,5 @@
 import { authHeaders, chatEndpoint, nichtErreichbarText, resolveConfig } from "@/lib/model";
+import { pruefeZiel } from "@/lib/urlGuard";
 import { RECHERCHE_PROMPT } from "@/lib/prompt";
 import type { Settings } from "@/lib/settings";
 
@@ -6,34 +7,83 @@ export const dynamic = "force-dynamic";
 
 const MAX_SEITENTEXT = 12_000;
 
+const MAX_BYTES = 2_000_000;
+const MAX_WEITERLEITUNGEN = 3;
+const ERLAUBTE_TYPEN = ["text/html", "text/plain", "application/xhtml+xml", "application/xml"];
+
 /**
- * Nur oeffentliche http(s)-Adressen. Verhindert, dass ueber das Eingabefeld
- * interne Dienste im Netz des Nutzers abgefragt werden.
+ * Holt eine Seite und prueft dabei JEDE Station. Ohne das koennte eine
+ * oeffentliche Seite per Weiterleitung auf einen internen Dienst zeigen und
+ * dessen Inhalt zurueckspielen.
  */
-function istOeffentlicheUrl(roh: string): URL | null {
-  let url: URL;
-  try {
-    // Nur ergaenzen, wenn gar kein Schema angegeben ist — sonst wuerde aus
-    // "file:///etc/passwd" ein scheinbar gueltiger Host.
-    url = new URL(roh.includes("://") ? roh : `https://${roh}`);
-  } catch {
-    return null;
+async function holeSicher(
+  start: string,
+): Promise<{ ok: true; text: string; host: string } | { ok: false; status: number; grund: string }> {
+  let ziel = start;
+
+  for (let hop = 0; hop <= MAX_WEITERLEITUNGEN; hop++) {
+    const geprueft = await pruefeZiel(ziel);
+    if (!geprueft.ok) return { ok: false, status: 400, grund: geprueft.grund };
+
+    let res: Response;
+    try {
+      res = await fetch(geprueft.url, {
+        redirect: "manual",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; AnrufAssistent/1.0)",
+          Accept: "text/html,application/xhtml+xml,text/plain;q=0.9",
+        },
+        signal: AbortSignal.timeout(15_000),
+        cache: "no-store",
+      });
+    } catch {
+      return { ok: false, status: 502, grund: "Website nicht erreichbar oder zu langsam." };
+    }
+
+    if (res.status >= 300 && res.status < 400) {
+      const weiter = res.headers.get("location");
+      if (!weiter) return { ok: false, status: 502, grund: "Weiterleitung ohne Ziel." };
+      // Relative Weiterleitungen gegen die aktuelle Adresse aufloesen.
+      ziel = new URL(weiter, geprueft.url).toString();
+      continue;
+    }
+
+    if (!res.ok) {
+      return { ok: false, status: 502, grund: `Website antwortet mit Status ${res.status}.` };
+    }
+
+    const typ = (res.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
+    if (typ && !ERLAUBTE_TYPEN.includes(typ)) {
+      return { ok: false, status: 415, grund: `Inhaltstyp ${typ} wird nicht gelesen.` };
+    }
+
+    // Groesse hart begrenzen, statt den Body blind komplett zu lesen.
+    const laenge = Number(res.headers.get("content-length") ?? "0");
+    if (laenge > MAX_BYTES) {
+      return { ok: false, status: 413, grund: "Seite ist zu groß." };
+    }
+
+    const reader = res.body?.getReader();
+    if (!reader) return { ok: false, status: 502, grund: "Leere Antwort." };
+
+    const decoder = new TextDecoder();
+    let gelesen = 0;
+    let roh = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      gelesen += value.byteLength;
+      if (gelesen > MAX_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        break;
+      }
+      roh += decoder.decode(value, { stream: true });
+    }
+
+    return { ok: true, text: roh, host: geprueft.url.hostname };
   }
-  if (url.protocol !== "http:" && url.protocol !== "https:") return null;
 
-  const host = url.hostname.toLowerCase();
-  const gesperrt =
-    host === "localhost" ||
-    host.endsWith(".localhost") ||
-    host.endsWith(".local") ||
-    host === "::1" ||
-    /^127\./.test(host) ||
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^169\.254\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host);
-
-  return gesperrt ? null : url;
+  return { ok: false, status: 502, grund: "Zu viele Weiterleitungen." };
 }
 
 function textAusHtml(html: string): string {
@@ -62,32 +112,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "Ungültiger Request-Body." }, { status: 400 });
   }
 
-  const url = istOeffentlicheUrl(roh);
-  if (!url) {
-    return Response.json(
-      { error: "Bitte eine öffentliche Webadresse angeben (http oder https)." },
-      { status: 400 },
-    );
+  const geholt = await holeSicher(roh);
+  if (!geholt.ok) {
+    return Response.json({ error: geholt.grund }, { status: geholt.status });
   }
-
-  let seitentext: string;
-  try {
-    const res = await fetch(url, {
-      redirect: "follow",
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; AnrufAssistent/1.0)" },
-      signal: AbortSignal.timeout(15_000),
-      cache: "no-store",
-    });
-    if (!res.ok) {
-      return Response.json(
-        { error: `Website antwortet mit Status ${res.status}.` },
-        { status: 502 },
-      );
-    }
-    seitentext = textAusHtml(await res.text()).slice(0, MAX_SEITENTEXT);
-  } catch {
-    return Response.json({ error: "Website nicht erreichbar oder zu langsam." }, { status: 502 });
-  }
+  const seitentext = textAusHtml(geholt.text).slice(0, MAX_SEITENTEXT);
 
   if (seitentext.length < 80) {
     return Response.json(
@@ -97,6 +126,14 @@ export async function POST(request: Request) {
   }
 
   // Rohtext durchs Modell schicken. Klappt das nicht, gibt es immer noch den Rohtext.
+  // Eine vom Client gesetzte Basis-URL koennte sonst auf interne Dienste zeigen.
+  if (ueberschreibung?.baseUrl) {
+    const zielOk = await pruefeZiel(ueberschreibung.baseUrl, { erlaubeLoopback: true });
+    if (!zielOk.ok) {
+      return Response.json({ error: `Modell-Adresse abgelehnt: ${zielOk.grund}` }, { status: 400 });
+    }
+  }
+
   const config = resolveConfig(ueberschreibung);
   try {
     const body =
@@ -108,7 +145,7 @@ export async function POST(request: Request) {
             max_tokens: 400,
             messages: [
               { role: "system", content: RECHERCHE_PROMPT },
-              { role: "user", content: seitentext },
+              { role: "user", content: `<<<WEBSITE-ROHTEXT>>>\n${seitentext}\n<<<ENDE>>>` },
             ],
           }
         : {
@@ -118,7 +155,7 @@ export async function POST(request: Request) {
             options: { temperature: 0.2, num_predict: 400 },
             messages: [
               { role: "system", content: RECHERCHE_PROMPT },
-              { role: "user", content: seitentext },
+              { role: "user", content: `<<<WEBSITE-ROHTEXT>>>\n${seitentext}\n<<<ENDE>>>` },
             ],
           };
 
@@ -142,11 +179,11 @@ export async function POST(request: Request) {
     ).trim();
 
     if (!zusammenfassung) throw new Error("leere Antwort");
-    return Response.json({ notes: zusammenfassung, quelle: url.hostname });
+    return Response.json({ notes: zusammenfassung, quelle: geholt.host });
   } catch {
     return Response.json({
       notes: seitentext.slice(0, 1500),
-      quelle: url.hostname,
+      quelle: geholt.host,
       hinweis: `Rohtext der Seite — ${nichtErreichbarText(config)}`,
     });
   }

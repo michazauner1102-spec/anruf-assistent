@@ -9,6 +9,7 @@ import {
 import { buildMessages } from "@/lib/prompt";
 import type { Zug } from "@/lib/conversation";
 import type { Settings } from "@/lib/settings";
+import { pruefeZiel } from "@/lib/urlGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,14 @@ export async function POST(request: Request) {
     );
   }
 
+  // Eine vom Client gesetzte Basis-URL koennte sonst auf interne Dienste zeigen.
+  if (ueberschreibung?.baseUrl) {
+    const zielOk = await pruefeZiel(ueberschreibung.baseUrl, { erlaubeLoopback: true });
+    if (!zielOk.ok) {
+      return Response.json({ error: `Modell-Adresse abgelehnt: ${zielOk.grund}` }, { status: 400 });
+    }
+  }
+
   const config = resolveConfig(ueberschreibung);
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | null = setTimeout(
@@ -93,13 +102,10 @@ export async function POST(request: Request) {
 
   if (!upstream.ok || !upstream.body) {
     timeoutLoeschen();
-    const detail = (await upstream.text().catch(() => "")).slice(0, 200);
+    // Nur den Status melden: die Antwort des Anbieters kann Interna enthalten.
+    await upstream.body?.cancel().catch(() => undefined);
     return Response.json(
-      {
-        error: detail
-          ? `${nichtErreichbarText(config)} (${upstream.status}: ${detail})`
-          : nichtErreichbarText(config),
-      },
+      { error: `${nichtErreichbarText(config)} (Status ${upstream.status})` },
       { status: 502 },
     );
   }

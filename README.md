@@ -113,22 +113,50 @@ Eingaben liegen im `localStorage` des Browsers und werden nur an die eigene API-
 von dort an den gewählten Anbieter geschickt. Wer keinen Key im Browser halten möchte,
 trägt ihn in `.env.local` ein und lässt die Felder leer.
 
-## Datenschutz
+## Sicherheit und Datenschutz
 
-Das Tool ist für den lokalen Betrieb gebaut, aber drei Dinge verlassen je nach Einstellung
-den Rechner — bewusst und sichtbar:
+### Was der Server nach außen tut
+
+Beim Auslesen einer Website prüft der Server **jede** Station der Anfrage: Schema, die
+tatsächlich aufgelöste IP-Adresse und jede Weiterleitung einzeln. Interne Ziele
+(Loopback, `10.x`, `192.168.x`, `172.16–31.x`, Link-local inklusive `169.254.169.254`,
+CGNAT, IPv6-ULA) werden abgelehnt. Ohne diese Prüfung könnte eine fremde Seite per
+Weiterleitung auf einen Dienst im eigenen Netz zeigen und dessen Inhalt über die
+Zusammenfassung zurückspielen. Zusätzlich gilt: nur Text-Inhaltstypen, höchstens 2 MB,
+höchstens drei Weiterleitungen, 15 Sekunden Zeitlimit.
+
+Dieselbe Prüfung liegt auf der Modell-Adresse aus den Einstellungen — mit einer bewussten
+Ausnahme für Loopback, weil das lokale Ollama genau dort liegt.
+
+Der Rohtext einer fremden Website ist unvertrauenswürdig und wird dem Modell ausdrücklich
+als Datenquelle statt als Anweisung übergeben. Ein Test mit eingebautem
+„Ignoriere alle vorherigen Anweisungen" führte dazu, dass das Modell den Versuch als
+Auffälligkeit meldet, statt ihm zu folgen.
+
+### Was den Rechner verlässt
 
 1. **Spracherkennung:** Chrome verarbeitet sie nicht auf dem Gerät, sondern schickt das
-   Audio an Google. Wer das nicht will, startet das Mithören nicht; Eingabefeld und
+   Audio an Google. Wer das nicht will, startet das Mithören nicht — Eingabefeld und
    Modell-Abfrage funktionieren unabhängig davon.
-2. **Cloud-Modell:** Einwand-Text *und* Firmen-Notizen gehen an den Anbieter. Die App zeigt
-   dann oben einen Hinweis. Mit einem lokalen Ollama-Modell bleibt beides hier.
-3. **Website auslesen:** Die angegebene Adresse wird vom Server abgerufen. Interne Adressen
-   (`localhost`, private IP-Bereiche) sind gesperrt.
+2. **Cloud-Modell:** Einwand, Notizen, eigener Kontext *und der Gesprächsverlauf* gehen an
+   den Anbieter. Die App zeigt dann oben einen Hinweis. Mit lokalem Ollama bleibt alles hier.
+3. **Website auslesen:** Die angegebene Adresse wird vom Server abgerufen.
 
-Notizen, eigener Kontext und eigenes Skript liegen ausschließlich im `localStorage` des
-Browsers — es gibt keine Datenbank und kein Backend. Mit einem Cloud-Modell gehen Notizen,
-Kontext und Gesprächsverlauf an den Anbieter.
+Notizen, Kontext, Skript und Einstellungen liegen ausschließlich im `localStorage` des
+Browsers. Es gibt keine Datenbank und kein Backend.
+
+### Bekannte Grenzen
+
+- **Keine Anmeldung.** Die App ist für `localhost` gedacht. `npm run dev:lan` öffnet sie
+  für das ganze WLAN: Jeder im Netz kann dann Modell-Anfragen auslösen — bei einer
+  Cloud-API auf deine Rechnung. Nur in vertrauenswürdigen Netzen verwenden, und für
+  die Spracherkennung ist LAN ohnehin unbrauchbar (kein sicherer Kontext).
+- **API-Key im Browser.** Ein im Einstellungsbereich eingetragener Key liegt im
+  `localStorage`. Wer das vermeiden will, trägt ihn in `.env.local` ein und lässt das
+  Feld leer.
+- **DNS-Rebinding.** Zwischen Prüfung und Abruf löst das Betriebssystem den Namen erneut
+  auf. Ein Angreifer mit Kontrolle über eine DNS-Antwort könnte dieses Zeitfenster
+  theoretisch nutzen. Für ein lokales Werkzeug ist das Restrisiko vertretbar.
 
 ## Auf den eigenen Fall anpassen
 
