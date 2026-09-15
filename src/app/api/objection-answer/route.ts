@@ -43,7 +43,7 @@ export async function POST(request: Request) {
           !!z &&
           typeof z === "object" &&
           typeof (z as Zug).text === "string" &&
-          ((z as Zug).rolle === "makler" || (z as Zug).rolle === "micha"),
+          ((z as Zug).rolle === "gegenueber" || (z as Zug).rolle === "anrufer"),
       );
     }
     if (Array.isArray(body.bereits)) {

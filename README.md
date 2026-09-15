@@ -4,6 +4,10 @@ Ein Bildschirm für Verkaufstelefonate. Links das Skript, rechts die Einwandbeha
 Das Tool hört über das Mikrofon mit und zeigt die passende Antwort, sobald ein Einwand
 fällt. Läuft lokal mit Ollama oder über eine Cloud-API.
 
+Branchenunabhängig: Skript, Einwände und Angaben zur eigenen Firma sind Inhalte, keine
+Programmlogik. Mitgeliefert wird eine neutrale B2B-Vorlage, die du durch deine eigenen
+Texte ersetzt.
+
 ## Features
 
 **Im Gespräch**
@@ -51,11 +55,20 @@ npm run dev
 Für das lokale Modell zusätzlich [Ollama](https://ollama.com) installieren:
 
 ```bash
-ollama pull gemma4:latest
+ollama pull llama3.1:8b
 ```
 
-Beim ersten Start entsteht `src/data/profile.ts`. Dort Name, Firma, Angebot, Preise und
-Terminlink eintragen. Die Datei wird von git ignoriert.
+Beim ersten Start entstehen aus den Vorlagen drei Dateien:
+
+| Datei | Inhalt |
+|---|---|
+| `src/data/profile.ts` | Name, Firma, Zielgruppe, Angebot, Preise, Terminlink |
+| `src/data/script.ts` | der Gesprächsablauf |
+| `src/data/objections.ts` | die Einwände samt Testsätzen |
+
+Alle drei werden von git ignoriert — deine Texte landen nie im Repo. Fang mit `profile.ts`
+an: Skript, Einwände und der System-Prompt ziehen Name, Firma und Preise von dort, der
+Preis steht also an genau einer Stelle.
 
 ## Mithören: was es braucht
 
@@ -105,14 +118,21 @@ Ich habe gesehen, dass [Thema] bei Ihnen läuft.
 `#` beginnt einen Schritt, `>` ist ein Hinweis, alles andere ist ein gesprochener Satz.
 Eckige Klammern werden hervorgehoben. Leeres Feld = mitgeliefertes Skript.
 
-## Auf den eigenen Fall anpassen
+## Auf die eigene Branche anpassen
 
-Drei Dateien, in dieser Reihenfolge:
+Die mitgelieferte Vorlage ist bewusst neutral gehalten: allgemeine B2B-Einwände, ein
+Gesprächsablauf ohne Branchenvokabular. Zum Anpassen reichen die drei Inhaltsdateien
+oben — Code muss man dafür nicht anfassen.
 
-1. `src/data/profile.ts` — Name, Firma, Angebot, Preise, Terminlink. Skript, Einwände und
-   der System-Prompt ziehen alles von hier. Der Preis steht an genau einer Stelle.
-2. `src/data/script.ts` — die Gesprächsschritte.
-3. `src/data/objections.ts` — die Einwände.
+Worauf es beim Ersetzen ankommt:
+
+- **`profile.ts` zuerst.** Zielgruppe, Angebot und Preise steuern, wie das Modell
+  formuliert.
+- **Einwände sind branchenspezifisch.** Was in einem Fach ein klarer Einwand ist, ist im
+  anderen Alltagssprache. Deshalb bringt jeder Einwand seinen eigenen Testsatz mit, und
+  `RUHE_SAETZE` sammelt Sätze aus der eigenen Branche, die nichts auslösen dürfen.
+- **Nach jeder Änderung den Test laufen lassen** (siehe unten). Er prüft automatisch
+  deine Inhalte, nicht die der Vorlage.
 
 ## Einwand-Erkennung
 
@@ -128,20 +148,26 @@ Zwei Verfahren in `src/lib/search.ts`:
 
 ### Einen Einwand ergänzen
 
-Eintrag in `objections.ts`, Testsatz in `src/app/api/matcher-test/route.ts`, dann:
+Eintrag in `objections.ts` anlegen, dabei `testsatz` mit einem real gesprochenen Satz
+füllen. Dann:
 
 ```bash
 curl localhost:3000/api/matcher-test
 ```
 
-75 Sätze: einer pro Einwand plus 24 Alltagssätze, die nichts auslösen dürfen. Der Test
-meldet auch Einwände ohne Testsatz.
+Der Test zieht seine Fälle aus den Daten: je ein Testsatz pro Einwand plus die
+`RUHE_SAETZE`. Er meldet auch Einwände, die noch keinen Testsatz haben.
 
 Drei Regeln für den Suchtext:
 
-1. Keine Alltagswörter. Bei Immobilienmaklern ist „verkaufen" ein normales Wort.
+1. **Keine Alltagswörter deiner Branche.** Bei einem Makler ist „verkaufen" normales
+   Fachvokabular, bei einer Agentur „Kampagne", in der Logistik „Lieferung".
 2. Ein Wort möglichst nur in einer Kategorie.
 3. Bei Gleichstand gewinnt der obere Eintrag — spezifische Einwände nach oben.
+
+**Grenze:** Das Mikrofon trennt die Sprecher nicht. Sätze, die *du* sagst („ich schicke
+Ihnen die Unterlagen"), enthalten dieselben Wörter wie der zugehörige Einwand und können
+eine Karte auslösen. Mit Wortlisten ist das nicht trennbar.
 
 ## Sicherheit
 
@@ -189,7 +215,10 @@ src/
   lib/prompt.ts                 System-Prompts, Verlauf als Chat-Historie
   lib/search.ts                 Einwand-Erkennung
   lib/urlGuard.ts               SSRF-Schutz
-  data/profile.ts               hier zuerst anpassen (lokal, nicht im Repo)
+  data/profile.ts               eigene Angaben (lokal, nicht im Repo)
+  data/script.ts                eigenes Skript (lokal)
+  data/objections.ts            eigene Einwände (lokal)
+  data/*.example.ts             neutrale Vorlagen, aus denen die drei entstehen
 ```
 
 ## Kein Cloud-Deployment

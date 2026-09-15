@@ -24,7 +24,7 @@ export function NotesPanel({
         aktuell={notizen}
         onErgebnis={onNotizenChange}
         settings={settings}
-        platzhalter="Website der Firma, z. B. makler-mustermann.de"
+        platzhalter="Website der Firma, z. B. beispiel-gmbh.de"
       />
 
       <textarea

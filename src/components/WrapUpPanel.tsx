@@ -10,7 +10,7 @@ import { CopyButton } from "./CopyButton";
 
 function alsText(verlauf: Zug[]): string {
   return verlauf
-    .map((z) => (z.rolle === "makler" ? `· ${z.text}` : `  [Vorschlag] ${z.text}`))
+    .map((z) => (z.rolle === "gegenueber" ? `· ${z.text}` : `  [Vorschlag] ${z.text}`))
     .join("\n");
 }
 
@@ -35,7 +35,7 @@ export function WrapUpPanel({
   const [fehler, setFehler] = useState<string | null>(null);
 
   const mitschnitt = alsText(verlauf);
-  const gesprochene = verlauf.filter((z) => z.rolle === "makler").length;
+  const gesprochene = verlauf.filter((z) => z.rolle === "gegenueber").length;
 
   const erstellen = async () => {
     if (laedt || verlauf.length === 0) return;

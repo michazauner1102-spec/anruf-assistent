@@ -41,6 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Persönliche Angaben (Name, Firma, Preise, Terminlink).
-# Vorlage: src/data/profile.example.ts — wird beim ersten Start automatisch kopiert.
+# Eigene Inhalte: Angaben zur Firma, Gesprächsskript und Einwände.
+# Vorlagen liegen als *.example.ts daneben und werden beim ersten Start kopiert.
 src/data/profile.ts
+src/data/script.ts
+src/data/objections.ts

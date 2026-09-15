@@ -1,6 +1,6 @@
-/** Ein Gespraechszug. "makler" ist das Gegenueber, "micha" der Anrufer. */
+/** Ein Gespraechszug. "gegenueber" ist das Gegenueber, "anrufer" der Anrufer. */
 export interface Zug {
-  rolle: "makler" | "micha";
+  rolle: "gegenueber" | "anrufer";
   text: string;
 }
 

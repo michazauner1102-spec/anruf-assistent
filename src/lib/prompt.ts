@@ -109,12 +109,12 @@ export function buildMessages(objection: string, ctx: AntwortKontext = {}): Chat
 
   for (const zug of letzteZuege(ctx.verlauf ?? [])) {
     nachrichten.push({
-      role: zug.rolle === "makler" ? "user" : "assistant",
+      role: zug.rolle === "gegenueber" ? "user" : "assistant",
       content: zug.text,
     });
   }
 
-  let letzte = `Der Makler sagt gerade: "${objection}"`;
+  let letzte = `Der Gesprächspartner sagt gerade: "${objection}"`;
   const bereits = (ctx.bereits ?? []).filter((b) => b.trim()).slice(-4);
   if (bereits.length > 0) {
     letzte += `
@@ -195,7 +195,7 @@ export function buildSummaryMessages(
   optionen: { ergebnis?: string; notizen?: string; kontext?: string } = {},
 ): ChatNachricht[] {
   const zeilen = verlauf.map((z) =>
-    z.rolle === "makler" ? `[Mitschnitt] ${z.text}` : `[Vorschlag] ${z.text}`,
+    z.rolle === "gegenueber" ? `[Mitschnitt] ${z.text}` : `[Vorschlag] ${z.text}`,
   );
 
   const teile: string[] = [];

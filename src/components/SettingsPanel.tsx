@@ -52,7 +52,7 @@ export function SettingsPanel({
           className="input"
           type="text"
           value={settings.model ?? ""}
-          placeholder={provider === "ollama" ? "gemma4:latest" : "gpt-4o-mini"}
+          placeholder={provider === "ollama" ? "llama3.1:8b" : "gpt-4o-mini"}
           onChange={(e) => setze("model", e.target.value)}
         />
       </label>

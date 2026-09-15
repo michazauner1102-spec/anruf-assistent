@@ -69,7 +69,7 @@ export function useSpeechRecognition() {
         setLetzteAeusserung(sauber.slice(-MAX_LAENGE));
         // Gespraechsverlauf hier fuehren, nicht in einem Effect: der Zug entsteht
         // genau in diesem Callback, wenn die Erkennung einen Satz abschliesst.
-        setVerlauf((bisher) => [...bisher, { rolle: "makler" as const, text: sauber }].slice(-40));
+        setVerlauf((bisher) => [...bisher, { rolle: "gegenueber" as const, text: sauber }].slice(-40));
       }
       setVorlaeufig(neuVorlaeufig);
     };

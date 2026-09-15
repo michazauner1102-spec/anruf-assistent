@@ -34,7 +34,7 @@ export function resolveConfig(ueberschreibung?: Partial<Settings>): ModelConfig 
   return {
     provider: "ollama",
     baseUrl: ohneSlash(ueberschreibung?.baseUrl || process.env.OLLAMA_HOST || "http://localhost:11434"),
-    model: ueberschreibung?.model || process.env.OLLAMA_MODEL || "gemma4:latest",
+    model: ueberschreibung?.model || process.env.OLLAMA_MODEL || "llama3.1:8b",
     apiKey: "",
   };
 }
@@ -86,7 +86,7 @@ export function chatBody(
   return {
     model: config.model,
     stream: true,
-    // Ohne think:false verbraucht ein Thinking-Modell (z. B. gemma4) das gesamte
+    // Ohne think:false verbraucht ein Thinking-faehiges Modell das gesamte
     // Token-Budget mit internem Denken und liefert leeren Inhalt zurueck.
     think: false,
     options: { temperature: 0.6, num_predict: 200 },

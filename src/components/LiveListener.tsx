@@ -50,7 +50,7 @@ export function LiveListener({
 
   // Entscheidend fuer die Trefferqualitaet: gematcht wird der Satz, der GERADE
   // gesprochen wird — nicht der rollende Gesamtpuffer. Sonst gewinnt ein Einwand
-  // von vor 20 Sekunden gegen das, was der Makler eben gesagt hat.
+  // von vor 20 Sekunden gegen das, was das Gegenüber eben gesagt hat.
   const aktuellerSatz = vorlaeufig.trim() || letzteAeusserung;
   const treffer = useMemo(() => matchFromSpeech(aktuellerSatz), [aktuellerSatz]);
 
@@ -133,7 +133,7 @@ export function LiveListener({
         setBereits([...vorherige, fertig]);
         // Als eigener Zug in den Verlauf — beim naechsten Mal weiss das Modell,
         // worauf der Gespraechspartner gerade reagiert.
-        verlaufErgaenzen("micha", fertig);
+        verlaufErgaenzen("anrufer", fertig);
       }
     } catch {
       setModellFehler("Verbindung zur App unterbrochen.");

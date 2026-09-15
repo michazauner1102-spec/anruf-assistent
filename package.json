@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/ensure-profile.mjs",
+    "predev": "node scripts/ensure-data.mjs",
     "dev": "next dev",
     "dev:lan": "next dev -H 0.0.0.0",
-    "prebuild": "node scripts/ensure-profile.mjs",
+    "prebuild": "node scripts/ensure-data.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
