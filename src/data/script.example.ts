@@ -1,7 +1,5 @@
 import { PROFILE } from "./profile";
 
-export { CALENDLY_LABEL, CALENDLY_URL } from "./profile";
-
 export const GOAL_BADGE = `Ziel: ${PROFILE.ziel} · Anrede: Sie`;
 
 export interface StepVariant {

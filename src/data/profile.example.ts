@@ -20,8 +20,6 @@ export const PROFILE = {
   spezialisierung: "Ihr Angebot in einem Halbsatz",
   /** Aktueller Stand — verhindert, dass das Modell Referenzen erfindet. */
   referenzstand: "Es gibt noch keine Referenzkunden. Ehrlich bleiben mit „Gründungskunden“ und „im Aufbau“.",
-  terminLinkLabel: "calendly.com/ihr-name/30min",
+  /** Terminbuchung: Calendly, cal.com, Google Kalender, eigene Seite … */
+  terminLink: "cal.com/ihr-name/30min",
 } as const;
-
-export const CALENDLY_LABEL = PROFILE.terminLinkLabel;
-export const CALENDLY_URL = `https://${PROFILE.terminLinkLabel}`;

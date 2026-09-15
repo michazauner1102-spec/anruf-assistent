@@ -71,8 +71,25 @@ export function SettingsPanel({
         </label>
       )}
 
+      <div className="panel__trenner" />
+
+      <label className="feld">
+        <span>Terminlink</span>
+        <input
+          className="input"
+          type="text"
+          value={settings.terminLink ?? ""}
+          placeholder="z. B. cal.com/ihr-name/30min oder calendly.com/…"
+          onChange={(e) => setze("terminLink", e.target.value)}
+        />
+      </label>
       <p className="panel__hinweis">
-        Leere Felder nutzen die Werte aus <code>.env.local</code>. Eingaben bleiben in diesem
+        Beliebiger Anbieter — Calendly, cal.com, Google Kalender, Microsoft Bookings oder
+        eine eigene Seite. Leer heißt: es gilt die Angabe aus <code>profile.ts</code>.
+      </p>
+
+      <p className="panel__hinweis">
+        Leere Modellfelder nutzen die Werte aus <code>.env.local</code>. Eingaben bleiben in diesem
         Browser; der Key wird nur an die eigene API-Route und von dort an den gewählten
         Anbieter geschickt.
       </p>

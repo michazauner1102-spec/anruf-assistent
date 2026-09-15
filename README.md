@@ -37,6 +37,7 @@ Texte ersetzt.
 **Technik**
 
 - Lokales Modell (Ollama) oder Cloud-API mit eigenem Key, im UI umschaltbar
+- Terminlink jedes Anbieters, unten immer griffbereit und im UI änderbar
 - Keine Datenbank, kein Backend. Alles liegt im Browser
 - Regressionstest für die Einwand-Erkennung unter `/api/matcher-test`
 
@@ -128,6 +129,9 @@ Worauf es beim Ersetzen ankommt:
 
 - **`profile.ts` zuerst.** Zielgruppe, Angebot und Preise steuern, wie das Modell
   formuliert.
+- **Terminlink:** beliebiger Anbieter — Calendly, cal.com, Google Kalender, Microsoft
+  Bookings oder eine eigene Seite. Reicht als Adresse ohne `https://`. Lässt sich auch
+  im Einstellungsbereich überschreiben, ohne die Datei anzufassen.
 - **Einwände sind branchenspezifisch.** Was in einem Fach ein klarer Einwand ist, ist im
   anderen Alltagssprache. Deshalb bringt jeder Einwand seinen eigenen Testsatz mit, und
   `RUHE_SAETZE` sammelt Sätze aus der eigenen Branche, die nichts auslösen dürfen.

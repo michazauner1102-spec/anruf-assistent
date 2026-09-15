@@ -9,6 +9,8 @@ export interface Settings {
   model: string;
   /** Nur fuer OpenAI-kompatible Anbieter. Bleibt im Browser des Nutzers. */
   apiKey: string;
+  /** Ueberschreibt den Terminlink aus profile.ts. Verlaesst den Browser nie. */
+  terminLink: string;
 }
 
 export const LEERE_SETTINGS: Settings = {
@@ -16,6 +18,7 @@ export const LEERE_SETTINGS: Settings = {
   baseUrl: "",
   model: "",
   apiKey: "",
+  terminLink: "",
 };
 
 const SPEICHER_SCHLUESSEL = "anruf-assistent.settings";
@@ -38,10 +41,16 @@ export function speichereSettings(settings: Partial<Settings>): void {
   }
 }
 
-/** Nur die Felder, die tatsaechlich gesetzt sind, werden an den Server geschickt. */
+/**
+ * Nur der Modellzugang geht an den Server — und davon nur, was gesetzt ist.
+ * Der Terminlink bleibt bewusst im Browser, er wird dort nicht gebraucht.
+ */
 export function settingsFuerRequest(settings: Partial<Settings>): Partial<Settings> | undefined {
+  const felder: (keyof Settings)[] = ["provider", "baseUrl", "model", "apiKey"];
   const gefuellt = Object.fromEntries(
-    Object.entries(settings).filter(([, wert]) => typeof wert === "string" && wert !== ""),
+    felder
+      .map((feld) => [feld, settings[feld]])
+      .filter(([, wert]) => typeof wert === "string" && wert !== ""),
   ) as Partial<Settings>;
   return Object.keys(gefuellt).length > 0 ? gefuellt : undefined;
 }

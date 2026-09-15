@@ -11,7 +11,9 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { Stepper } from "@/components/Stepper";
 import { useSpeechRecognition } from "@/components/useSpeechRecognition";
 import { WrapUpPanel } from "@/components/WrapUpPanel";
-import { CALENDLY_LABEL, CALENDLY_URL, CHECKLIST, STEPS } from "@/data/script";
+import { CHECKLIST, STEPS } from "@/data/script";
+import { PROFILE } from "@/data/profile";
+import { terminLabel, terminUrl } from "@/lib/terminLink";
 import { parseScript } from "@/lib/scriptParser";
 import type { HealthState } from "@/lib/health";
 import { createLocalStore } from "@/lib/localStore";
@@ -93,6 +95,9 @@ export default function Page() {
     // Nur beim ersten Laden — spaetere Aenderungen loesen die Pruefung selbst aus.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pruefeVerbindung]);
+
+  // Einstellung schlägt die Angabe aus profile.ts.
+  const termin = (settings.terminLink ?? "").trim() || PROFILE.terminLink;
 
   const notizenSetzen = (wert: string) => notizStore.set(wert);
 
@@ -193,10 +198,18 @@ export default function Page() {
       </div>
 
       <footer className="footer">
-        <a href={CALENDLY_URL} target="_blank" rel="noreferrer">
-          {CALENDLY_LABEL}
-        </a>
-        <CopyButton text={CALENDLY_URL} />
+        {termin ? (
+          <>
+            <a href={terminUrl(termin)} target="_blank" rel="noreferrer">
+              {terminLabel(termin)}
+            </a>
+            <CopyButton text={terminUrl(termin)} />
+          </>
+        ) : (
+          <span className="empty" style={{ margin: 0 }}>
+            Kein Terminlink hinterlegt — in den Einstellungen eintragen.
+          </span>
+        )}
       </footer>
     </main>
   );
