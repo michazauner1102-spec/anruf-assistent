@@ -115,6 +115,33 @@ export default function Page() {
   // Einstellung schlägt die Angabe aus profile.ts.
   const termin = (settings.terminLink ?? "").trim() || PROFILE.terminLink;
 
+  // Pfeiltasten blättern durch das Skript — aber nie, während irgendwo getippt wird.
+  useEffect(() => {
+    const letzter = schritte.length - 1;
+
+    const beiTaste = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      const ziel = e.target as HTMLElement | null;
+      const tippt =
+        !!ziel &&
+        (ziel.tagName === "INPUT" ||
+          ziel.tagName === "TEXTAREA" ||
+          ziel.tagName === "SELECT" ||
+          ziel.isContentEditable);
+      if (tippt) return;
+
+      e.preventDefault();
+      setStepIndex((i) =>
+        e.key === "ArrowRight" ? Math.min(i + 1, letzter) : Math.max(i - 1, 0),
+      );
+    };
+
+    window.addEventListener("keydown", beiTaste);
+    return () => window.removeEventListener("keydown", beiTaste);
+  }, [schritte.length]);
+
   const notizenSetzen = (wert: string) => notizStore.set(wert);
 
   const settingsSetzen = (neu: Partial<Settings>) => {

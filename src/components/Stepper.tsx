@@ -64,6 +64,7 @@ export function Stepper({
           className="btn"
           onClick={() => onIndexChange(index - 1)}
           disabled={index === 0}
+          title="Pfeiltaste links"
         >
           ◀ Zurück
         </button>
@@ -72,6 +73,7 @@ export function Stepper({
           className="btn"
           onClick={() => onIndexChange(index + 1)}
           disabled={index === last}
+          title="Pfeiltaste rechts"
         >
           Weiter ▶
         </button>

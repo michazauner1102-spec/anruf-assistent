@@ -12,7 +12,8 @@ Texte ersetzt.
 
 **Im Gespräch**
 
-- Skript-Durchlauf mit schmaler Fortschrittsanzeige
+- Skript-Durchlauf mit schmaler Fortschrittsanzeige, weiter mit den Pfeiltasten
+  (greift nicht, während in einem Feld getippt wird)
 - Mithören über das Mikrofon, Einwand-Erkennung in Echtzeit
 - 51 hinterlegte Einwände in 10 Kategorien, je mit Antwort und der Ursache dahinter
 - Freie Einwände beantwortet ein Sprachmodell im selben Stil
