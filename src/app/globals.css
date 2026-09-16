@@ -325,6 +325,12 @@ code {
   font-size: 0.78rem;
 }
 
+/* Eingesetzter Wert: gefüllt statt Lücke */
+.ph--gefuellt {
+  background: var(--text);
+  color: #fff;
+}
+
 /* Platzhalter wie [Name] — ohne Farbe, nur Kontrast */
 .ph {
   background: var(--border);

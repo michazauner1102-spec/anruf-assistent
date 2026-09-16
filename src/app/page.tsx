@@ -13,6 +13,7 @@ import { useSpeechRecognition } from "@/components/useSpeechRecognition";
 import { WrapUpPanel } from "@/components/WrapUpPanel";
 import { CHECKLIST, STEPS } from "@/data/script";
 import { PROFILE } from "@/data/profile";
+import { platzhalterAusName } from "@/lib/platzhalter";
 import { terminLabel, terminUrl } from "@/lib/terminLink";
 import { parseScript } from "@/lib/scriptParser";
 import type { HealthState } from "@/lib/health";
@@ -24,6 +25,7 @@ const settingsStore = createLocalStore("anruf-assistent.settings", "{}");
 const kontextStore = createLocalStore("anruf-assistent.kontext", "");
 const skriptStore = createLocalStore("anruf-assistent.skript", "");
 const briefingStore = createLocalStore("anruf-assistent.briefing", "");
+const kontaktStore = createLocalStore("anruf-assistent.kontakt", "");
 
 type Panel = "keins" | "notizen" | "kontext" | "nachbereitung" | "einstellungen";
 
@@ -57,6 +59,11 @@ export default function Page() {
     briefingStore.getSnapshot,
     briefingStore.getServerSnapshot,
   );
+  const kontakt = useSyncExternalStore(
+    kontaktStore.subscribe,
+    kontaktStore.getSnapshot,
+    kontaktStore.getServerSnapshot,
+  );
   const skriptText = useSyncExternalStore(
     skriptStore.subscribe,
     skriptStore.getSnapshot,
@@ -67,6 +74,8 @@ export default function Page() {
     const eigene = skriptText.trim() ? parseScript(skriptText) : [];
     return eigene.length > 0 ? eigene : STEPS;
   }, [skriptText]);
+
+  const platzhalter = useMemo(() => platzhalterAusName(kontakt), [kontakt]);
 
   const settings = useMemo<Partial<Settings>>(() => {
     try {
@@ -159,6 +168,8 @@ export default function Page() {
           onNotizenChange={notizenSetzen}
           briefing={briefing}
           onBriefingChange={(w) => briefingStore.set(w)}
+          kontakt={kontakt}
+          onKontaktChange={(w) => kontaktStore.set(w)}
           kontext={kontext}
           settings={settings}
         />
@@ -198,6 +209,7 @@ export default function Page() {
         <section className="spalte">
           <Stepper
             steps={schritte}
+            werte={platzhalter}
             index={stepIndex}
             onIndexChange={setStepIndex}
             variantId={variantId}

@@ -1,16 +1,19 @@
 "use client";
 
 import { STEPS, type Step } from "@/data/script";
+import type { PlatzhalterWerte } from "@/lib/platzhalter";
 import { ScriptText, Speech } from "./ScriptText";
 
 export function Stepper({
   steps = STEPS,
+  werte,
   index,
   onIndexChange,
   variantId,
   onVariantChange,
 }: {
   steps?: Step[];
+  werte?: PlatzhalterWerte;
   index: number;
   onIndexChange: (index: number) => void;
   variantId: string;
@@ -45,12 +48,12 @@ export function Stepper({
         )}
 
         {lines.map((line) => (
-          <Speech key={line} text={line} big />
+          <Speech key={line} text={line} big werte={werte} />
         ))}
 
         {current.hint && (
           <p className="hint">
-            <ScriptText text={current.hint} />
+            <ScriptText text={current.hint} werte={werte} />
           </p>
         )}
       </div>

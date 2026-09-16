@@ -240,6 +240,9 @@ gesammelten Notizen zum Gesprächspartner. ${FREMDTEXT_WARNUNG}
 
 Schreibe auf Deutsch, knapp, genau in dieser Struktur, ohne Einleitung:
 
+Ansprechpartner: <Vor- und Nachname der Person, die man anruft, falls in den
+Notizen genannt — sonst ein Gedankenstrich. Keine Funktionsbezeichnung, nur
+der Name.>
 Kurzprofil: <1 bis 2 Sätze: wer ist die Firma, was macht sie>
 Ansatzpunkt: <1 bis 2 Stichpunkte: wo vermutlich Zeit oder Geld liegen bleibt>
 Gesprächsaufhänger: <2 bis 3 Stichpunkte, jeder mit dem konkreten Detail aus den

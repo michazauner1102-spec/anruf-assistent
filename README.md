@@ -24,8 +24,11 @@ Texte ersetzt.
 
 - **Notizen** zum Gegenüber: dessen Website auslesen lassen oder einfügen
 - **Notizen auswerten**: ein Knopfdruck macht aus roher Recherche ein Briefing —
-  Kurzprofil, Ansatzpunkt, Gesprächsaufhänger mit dem jeweiligen Detail, erwartbare
-  Einwände, Vorsicht. Das Briefing geht als Kontext mit ins Gespräch
+  Ansprechpartner, Kurzprofil, Ansatzpunkt, Gesprächsaufhänger mit dem jeweiligen
+  Detail, erwartbare Einwände, Vorsicht. Das Briefing geht als Kontext mit ins Gespräch
+- Findet die Auswertung einen **Namen**, steht er direkt im Skript: `[Vorname]`,
+  `[Nachname]` und `[Name]` werden gefüllt und bleiben markiert. Titel wie „Dr." fallen
+  für die Anrede weg, Partikel wie „von" bleiben am Nachnamen. Überschreibbar
 - **Kontext** zum eigenen Angebot: eigene Website auslesen lassen, Datei laden oder
   einfügen — die Auswertung achtet dabei auf Leistungen, Positionierung und Preise statt
   auf Gesprächsaufhänger

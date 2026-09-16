@@ -1,29 +1,43 @@
-const PLACEHOLDER = /(\[[^\]]+\])/g;
+import type { PlatzhalterWerte } from "@/lib/platzhalter";
 
-/** Hebt Platzhalter wie [Name] oder [Zeit 1] hervor, damit sie beim Vorlesen auffallen. */
-export function ScriptText({ text }: { text: string }) {
+const PLATZHALTER = /(\[[^\]]+\])/g;
+
+/**
+ * Hebt Platzhalter wie [Name] hervor. Ist fuer einen Platzhalter ein Wert
+ * bekannt, steht dort der Wert — weiterhin markiert, damit im Gespraech
+ * erkennbar bleibt, was eingesetzt wurde.
+ */
+export function ScriptText({ text, werte }: { text: string; werte?: PlatzhalterWerte }) {
   return (
     <>
-      {text.split(PLACEHOLDER).map((part, i) =>
-        /^\[[^\]]+\]$/.test(part) ? (
-          <mark key={i} className="ph">
-            {part}
+      {text.split(PLATZHALTER).map((teil, i) => {
+        if (!/^\[[^\]]+\]$/.test(teil)) return <span key={i}>{teil}</span>;
+        const wert = werte?.[teil.slice(1, -1).trim().toLowerCase()];
+        return (
+          <mark key={i} className={wert ? "ph ph--gefuellt" : "ph"}>
+            {wert ?? teil}
           </mark>
-        ) : (
-          <span key={i}>{part}</span>
-        ),
-      )}
+        );
+      })}
     </>
   );
 }
 
 /** Wörtlich vorlesbarer Satz in Anführungszeichen. */
-export function Speech({ text, big = false }: { text: string; big?: boolean }) {
+export function Speech({
+  text,
+  big = false,
+  werte,
+}: {
+  text: string;
+  big?: boolean;
+  werte?: PlatzhalterWerte;
+}) {
   return (
     <p className={big ? "speech speech--big" : "speech"}>
-      {"„"}
-      <ScriptText text={text} />
-      {"“"}
+      {"\u201e"}
+      <ScriptText text={text} werte={werte} />
+      {"\u201c"}
     </p>
   );
 }

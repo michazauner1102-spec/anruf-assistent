@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { settingsFuerRequest, type Settings } from "@/lib/settings";
+import { ansprechpartnerAus } from "@/lib/platzhalter";
 import { leseStrom } from "@/lib/streamClient";
 import { CopyButton } from "./CopyButton";
 import { WebsiteImport } from "./WebsiteImport";
@@ -11,6 +12,8 @@ export function NotesPanel({
   onNotizenChange,
   briefing,
   onBriefingChange,
+  kontakt,
+  onKontaktChange,
   kontext,
   settings,
 }: {
@@ -18,6 +21,8 @@ export function NotesPanel({
   onNotizenChange: (wert: string) => void;
   briefing: string;
   onBriefingChange: (wert: string) => void;
+  kontakt: string;
+  onKontaktChange: (wert: string) => void;
   kontext: string;
   settings: Partial<Settings>;
 }) {
@@ -35,8 +40,15 @@ export function NotesPanel({
         { notes: notizen, kontext, settings: settingsFuerRequest(settings) },
         onBriefingChange,
       );
-      if (f) setFehler(f);
-      else onBriefingChange(text.trim());
+      if (f) {
+        setFehler(f);
+        return;
+      }
+      const fertig = text.trim();
+      onBriefingChange(fertig);
+      // Nennt die Auswertung einen Ansprechpartner, wandert er direkt ins Skript.
+      const gefunden = ansprechpartnerAus(fertig);
+      if (gefunden) onKontaktChange(gefunden);
     } catch {
       setFehler("Verbindung zur App unterbrochen.");
     } finally {
@@ -49,6 +61,18 @@ export function NotesPanel({
         Was Sie hier eintragen, bekommt das Modell als Hintergrundwissen — nur für dieses
         Gespräch, gespeichert bleibt es allein in diesem Browser.
       </p>
+
+      <label className="feld">
+        <span>Gesprächspartner — füllt [Name], [Vorname] und [Nachname] im Skript</span>
+        <input
+          className="input"
+          type="text"
+          value={kontakt}
+          autoComplete="off"
+          placeholder="wird aus der Auswertung übernommen, überschreibbar"
+          onChange={(e) => onKontaktChange(e.target.value)}
+        />
+      </label>
 
       <WebsiteImport
         zweck="gegenueber"
