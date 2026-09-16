@@ -32,7 +32,8 @@ Texte ersetzt.
 - **Kontext** zum eigenen Angebot: eigene Website auslesen lassen, Datei laden oder
   einfügen — die Auswertung achtet dabei auf Leistungen, Positionierung und Preise statt
   auf Gesprächsaufhänger
-- **Eigenes Skript** in einem einfachen Textformat, ersetzt den mitgelieferten Ablauf
+- **Skript** als eigener Bereich: eigenen Ablauf laden oder eintippen, ersetzt den
+  mitgelieferten
 
 **Nach dem Gespräch**
 
@@ -111,7 +112,7 @@ das Feld leer.
 
 ## Eigenes Skript
 
-Bereich **Kontext → Eigenes Skript**, per Datei oder Einfügen:
+Bereich **Skript** oben, per Datei oder Einfügen:
 
 ```
 # Begrüßung
@@ -123,7 +124,8 @@ Ich habe gesehen, dass [Thema] bei Ihnen läuft.
 ```
 
 `#` beginnt einen Schritt, `>` ist ein Hinweis, alles andere ist ein gesprochener Satz.
-Eckige Klammern werden hervorgehoben. Leeres Feld = mitgeliefertes Skript.
+Eckige Klammern werden hervorgehoben; `[Name]`, `[Vorname]` und `[Nachname]` füllt das
+Tool mit dem Gesprächspartner aus den Notizen. Leeres Feld = mitgeliefertes Skript.
 
 ## Auf die eigene Branche anpassen
 
@@ -221,7 +223,8 @@ src/
   components/LiveListener.tsx   Mithören, Treffer, Modell-Abfrage
   components/WrapUpPanel.tsx    Mitschnitt, Zusammenfassung, Checkliste
   components/NotesPanel.tsx     Recherche zum Gegenüber
-  components/ContextPanel.tsx   eigener Kontext, eigenes Skript
+  components/ScriptPanel.tsx    eigenes Skript
+  components/ContextPanel.tsx   Angaben zum eigenen Angebot
   lib/model.ts                  Ollama und OpenAI-kompatibel hinter einer Schnittstelle
   lib/prompt.ts                 System-Prompts, Verlauf als Chat-Historie
   lib/streamRoute.ts            gemeinsame Streaming-Mechanik der Modell-Routen

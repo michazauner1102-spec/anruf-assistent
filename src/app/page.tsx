@@ -7,6 +7,7 @@ import { HealthBanner } from "@/components/HealthBanner";
 import { LiveListener } from "@/components/LiveListener";
 import { NotesPanel } from "@/components/NotesPanel";
 import { Progress } from "@/components/Progress";
+import { ScriptPanel } from "@/components/ScriptPanel";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { Stepper } from "@/components/Stepper";
 import { useSpeechRecognition } from "@/components/useSpeechRecognition";
@@ -27,7 +28,7 @@ const skriptStore = createLocalStore("anruf-assistent.skript", "");
 const briefingStore = createLocalStore("anruf-assistent.briefing", "");
 const kontaktStore = createLocalStore("anruf-assistent.kontakt", "");
 
-type Panel = "keins" | "notizen" | "kontext" | "nachbereitung" | "einstellungen";
+type Panel = "keins" | "notizen" | "skript" | "kontext" | "nachbereitung" | "einstellungen";
 
 export default function Page() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -138,10 +139,18 @@ export default function Page() {
           <button
             type="button"
             className="link-btn"
+            aria-pressed={panel === "skript"}
+            onClick={() => setPanel((p) => (p === "skript" ? "keins" : "skript"))}
+          >
+            Skript{skriptText.trim() ? ` (${schritte.length})` : ""}
+          </button>
+          <button
+            type="button"
+            className="link-btn"
             aria-pressed={panel === "kontext"}
             onClick={() => setPanel((p) => (p === "kontext" ? "keins" : "kontext"))}
           >
-            Kontext{kontext.trim() || skriptText.trim() ? " ●" : ""}
+            Kontext{kontext.trim() ? " ●" : ""}
           </button>
           <button
             type="button"
@@ -174,12 +183,13 @@ export default function Page() {
           settings={settings}
         />
       )}
+      {panel === "skript" && (
+        <ScriptPanel skript={skriptText} onSkriptChange={(w) => skriptStore.set(w)} />
+      )}
       {panel === "kontext" && (
         <ContextPanel
           kontext={kontext}
           onKontextChange={(w) => kontextStore.set(w)}
-          skript={skriptText}
-          onSkriptChange={(w) => skriptStore.set(w)}
           settings={settings}
         />
       )}
