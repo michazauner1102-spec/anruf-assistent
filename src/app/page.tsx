@@ -27,6 +27,9 @@ const kontextStore = createLocalStore("anruf-assistent.kontext", "");
 const skriptStore = createLocalStore("anruf-assistent.skript", "");
 const briefingStore = createLocalStore("anruf-assistent.briefing", "");
 const kontaktStore = createLocalStore("anruf-assistent.kontakt", "");
+// Auf den Gesprächspartner zugeschnittene Fassung — liegt ÜBER dem Basis-Skript,
+// damit die Basis beim nächsten Anruf unverändert dasteht.
+const angepasstStore = createLocalStore("anruf-assistent.skript-angepasst", "");
 
 type Panel = "keins" | "notizen" | "skript" | "kontext" | "nachbereitung" | "einstellungen";
 
@@ -70,11 +73,20 @@ export default function Page() {
     skriptStore.getSnapshot,
     skriptStore.getServerSnapshot,
   );
+  const angepasst = useSyncExternalStore(
+    angepasstStore.subscribe,
+    angepasstStore.getSnapshot,
+    angepasstStore.getServerSnapshot,
+  );
   // Ein eigenes Skript ersetzt den mitgelieferten Ablauf, sobald es Schritte ergibt.
+  // Reihenfolge: angepasste Fassung, sonst eigenes Skript, sonst das mitgelieferte.
   const schritte = useMemo(() => {
-    const eigene = skriptText.trim() ? parseScript(skriptText) : [];
-    return eigene.length > 0 ? eigene : STEPS;
-  }, [skriptText]);
+    for (const text of [angepasst, skriptText]) {
+      const geparst = text.trim() ? parseScript(text) : [];
+      if (geparst.length > 0) return geparst;
+    }
+    return STEPS;
+  }, [angepasst, skriptText]);
 
   const platzhalter = useMemo(() => platzhalterAusName(kontakt), [kontakt]);
 
@@ -169,7 +181,7 @@ export default function Page() {
             aria-pressed={panel === "skript"}
             onClick={() => setPanel((p) => (p === "skript" ? "keins" : "skript"))}
           >
-            Skript{skriptText.trim() ? ` (${schritte.length})` : ""}
+            Skript{angepasst.trim() ? ` ✦ ${schritte.length}` : skriptText.trim() ? ` (${schritte.length})` : ""}
           </button>
           <button
             type="button"
@@ -211,7 +223,15 @@ export default function Page() {
         />
       )}
       {panel === "skript" && (
-        <ScriptPanel skript={skriptText} onSkriptChange={(w) => skriptStore.set(w)} />
+        <ScriptPanel
+          skript={skriptText}
+          onSkriptChange={(w) => skriptStore.set(w)}
+          angepasst={angepasst}
+          onAngepasstChange={(w) => angepasstStore.set(w)}
+          briefing={briefing}
+          notizen={notizen}
+          settings={settings}
+        />
       )}
       {panel === "kontext" && (
         <ContextPanel
@@ -231,6 +251,7 @@ export default function Page() {
           }
           onNeuesGespraech={() => {
             speech.zuruecksetzen();
+            angepasstStore.set("");
             setCheckliste(CHECKLIST.map(() => false));
             setStepIndex(0);
           }}

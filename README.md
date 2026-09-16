@@ -35,6 +35,8 @@ Texte ersetzt.
   auf Gesprächsaufhänger
 - **Skript** als eigener Bereich: eigenen Ablauf laden oder eintippen, ersetzt den
   mitgelieferten
+- **Skript auf den Gesprächspartner zuschneiden**: aus der Recherche schlägt das Modell
+  eine angepasste Fassung vor. Sie legt sich über das Basis-Skript, ohne es zu ändern
 
 **Nach dem Gespräch**
 
@@ -128,6 +130,11 @@ Ich habe gesehen, dass [Thema] bei Ihnen läuft.
 Eckige Klammern werden hervorgehoben; `[Name]`, `[Vorname]` und `[Nachname]` füllt das
 Tool mit dem Gesprächspartner aus den Notizen. Leeres Feld = mitgeliefertes Skript.
 
+**Zuschneiden:** Liegt Recherche vor, schlägt „An diesen Gesprächspartner anpassen" eine
+Fassung vor, die ein bis zwei Stellen konkret macht. Struktur, Schrittzahl und Platzhalter
+bleiben, und das Basis-Skript wird nicht überschrieben — die angepasste Fassung liegt
+darüber und verschwindet mit „Neues Gespräch" in der Nachbereitung.
+
 ## Auf die eigene Branche anpassen
 
 Die mitgelieferte Vorlage ist bewusst neutral gehalten: allgemeine B2B-Einwände, ein
@@ -219,6 +226,7 @@ src/
   app/api/summary/              Zusammenfassung fürs CRM (streamt)
   app/api/research/             Website auslesen und zusammenfassen
   app/api/briefing/             Notizen zu einem Briefing verdichten
+  app/api/script-adapt/         Skript auf den Gesprächspartner zuschneiden
   app/api/health/               Anbieter und Modell prüfen
   app/api/matcher-test/         Regressionstest der Erkennung
   components/LiveListener.tsx   Mithören, Treffer, Modell-Abfrage

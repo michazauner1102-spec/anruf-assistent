@@ -4,6 +4,7 @@ import {
   chatEndpoint,
   createStreamParser,
   nichtErreichbarText,
+  type ChatOptionen,
   type ModelConfig,
 } from "./model";
 
@@ -14,7 +15,7 @@ import {
 export async function streameModellAntwort(
   config: ModelConfig,
   messages: { role: string; content: string }[],
-  optionen: { timeoutMs?: number; timeoutText?: string } = {},
+  optionen: { timeoutMs?: number; timeoutText?: string } & ChatOptionen = {},
 ): Promise<Response> {
   const timeoutMs = optionen.timeoutMs ?? 45_000;
   const controller = new AbortController();
@@ -32,7 +33,12 @@ export async function streameModellAntwort(
     upstream = await fetch(chatEndpoint(config), {
       method: "POST",
       headers: authHeaders(config),
-      body: JSON.stringify(chatBody(config, messages)),
+      body: JSON.stringify(
+        chatBody(config, messages, {
+          maxTokens: optionen.maxTokens,
+          temperature: optionen.temperature,
+        }),
+      ),
       signal: controller.signal,
       cache: "no-store",
     });

@@ -51,5 +51,7 @@ export async function POST(request: Request) {
   return streameModellAntwort(config, buildSummaryMessages(verlauf, { ergebnis, notizen }), {
     timeoutMs: 60_000,
     timeoutText: "Zeitüberschreitung bei der Zusammenfassung.",
+    maxTokens: 600,
+    temperature: 0.3,
   });
 }

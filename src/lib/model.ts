@@ -75,12 +75,22 @@ export function chatEndpoint(config: ModelConfig): string {
     : `${config.baseUrl}/api/chat`;
 }
 
+export interface ChatOptionen {
+  /** Laenge der Antwort. Eine Einwand-Antwort braucht wenig, ein ganzes Skript viel. */
+  maxTokens?: number;
+  temperature?: number;
+}
+
 export function chatBody(
   config: ModelConfig,
   messages: { role: string; content: string }[],
+  optionen: ChatOptionen = {},
 ) {
+  const maxTokens = optionen.maxTokens ?? 200;
+  const temperature = optionen.temperature ?? 0.6;
+
   if (config.provider === "openai") {
-    return { model: config.model, stream: true, temperature: 0.6, max_tokens: 200, messages };
+    return { model: config.model, stream: true, temperature, max_tokens: maxTokens, messages };
   }
 
   return {
@@ -89,7 +99,7 @@ export function chatBody(
     // Ohne think:false verbraucht ein Thinking-faehiges Modell das gesamte
     // Token-Budget mit internem Denken und liefert leeren Inhalt zurueck.
     think: false,
-    options: { temperature: 0.6, num_predict: 200 },
+    options: { temperature, num_predict: maxTokens },
     messages,
   };
 }

@@ -1,32 +1,40 @@
 import { resolveConfig } from "@/lib/model";
-import { buildBriefingMessages } from "@/lib/prompt";
+import { buildSkriptMessages } from "@/lib/prompt";
 import { streameModellAntwort } from "@/lib/streamRoute";
 import type { Settings } from "@/lib/settings";
 import { pruefeZiel } from "@/lib/urlGuard";
 
 export const dynamic = "force-dynamic";
 
+const MAX_SKRIPT = 6000;
+
 export async function POST(request: Request) {
+  let skript = "";
+  let briefing = "";
   let notizen = "";
-  let kontext = "";
   let ueberschreibung: Partial<Settings> | undefined;
 
   try {
     const body = (await request.json()) as {
+      skript?: unknown;
+      briefing?: unknown;
       notes?: unknown;
-      kontext?: unknown;
       settings?: Partial<Settings>;
     };
+    if (typeof body.skript === "string") skript = body.skript.slice(0, MAX_SKRIPT);
+    if (typeof body.briefing === "string") briefing = body.briefing;
     if (typeof body.notes === "string") notizen = body.notes;
-    if (typeof body.kontext === "string") kontext = body.kontext;
     ueberschreibung = body.settings;
   } catch {
     return Response.json({ error: "Ungültiger Request-Body." }, { status: 400 });
   }
 
-  if (notizen.trim().length < 40) {
+  if (skript.trim().length < 20) {
+    return Response.json({ error: "Kein Skript zum Anpassen vorhanden." }, { status: 400 });
+  }
+  if (briefing.trim().length < 20 && notizen.trim().length < 40) {
     return Response.json(
-      { error: "Zu wenig Notizen zum Auswerten — erst Recherche einfügen oder Website auslesen." },
+      { error: "Zu wenig Recherche — erst Notizen einfügen und auswerten." },
       { status: 400 },
     );
   }
@@ -38,10 +46,15 @@ export async function POST(request: Request) {
     }
   }
 
-  return streameModellAntwort(resolveConfig(ueberschreibung), buildBriefingMessages(notizen, kontext), {
-    timeoutMs: 60_000,
-    timeoutText: "Zeitüberschreitung bei der Auswertung.",
-    maxTokens: 600,
-    temperature: 0.3,
-  });
+  return streameModellAntwort(
+    resolveConfig(ueberschreibung),
+    buildSkriptMessages(skript, { briefing, notizen }),
+    {
+      timeoutMs: 90_000,
+      timeoutText: "Zeitüberschreitung beim Anpassen des Skripts.",
+      // Ein ganzes Skript ist um ein Vielfaches laenger als eine Einwand-Antwort.
+      maxTokens: 1600,
+      temperature: 0.4,
+    },
+  );
 }
