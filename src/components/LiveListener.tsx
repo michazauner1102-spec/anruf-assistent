@@ -18,11 +18,13 @@ interface StreamEvent {
 export function LiveListener({
   speech,
   notizen,
+  briefing,
   kontext,
   settings,
 }: {
   speech: SpeechState;
   notizen: string;
+  briefing: string;
   kontext: string;
   settings: Partial<Settings>;
 }) {
@@ -63,7 +65,7 @@ export function LiveListener({
   }, [laeuft, letzteAeusserung]);
 
 
-  const kontextAktiv = notizen.trim().length > 0;
+  const kontextAktiv = notizen.trim().length > 0 || briefing.trim().length > 0;
 
   const fragen = async () => {
     const objection = eingabe.trim();
@@ -86,6 +88,7 @@ export function LiveListener({
         body: JSON.stringify({
           objection,
           notes: notizen,
+          briefing,
           kontext,
           verlauf,
           bereits: vorherige,
@@ -241,7 +244,9 @@ export function LiveListener({
       </div>
 
       {kontextAktiv && !laedt && !antwort && (
-        <p className="kontext-hinweis">Firmen-Notizen werden mitgeschickt.</p>
+        <p className="kontext-hinweis">
+          {briefing.trim() ? "Auswertung und Notizen werden mitgeschickt." : "Firmen-Notizen werden mitgeschickt."}
+        </p>
       )}
 
       {(laedt || antwort || modellFehler) && (

@@ -23,6 +23,7 @@ const notizStore = createLocalStore("anruf-assistent.notizen", "");
 const settingsStore = createLocalStore("anruf-assistent.settings", "{}");
 const kontextStore = createLocalStore("anruf-assistent.kontext", "");
 const skriptStore = createLocalStore("anruf-assistent.skript", "");
+const briefingStore = createLocalStore("anruf-assistent.briefing", "");
 
 type Panel = "keins" | "notizen" | "kontext" | "nachbereitung" | "einstellungen";
 
@@ -50,6 +51,11 @@ export default function Page() {
     kontextStore.subscribe,
     kontextStore.getSnapshot,
     kontextStore.getServerSnapshot,
+  );
+  const briefing = useSyncExternalStore(
+    briefingStore.subscribe,
+    briefingStore.getSnapshot,
+    briefingStore.getServerSnapshot,
   );
   const skriptText = useSyncExternalStore(
     skriptStore.subscribe,
@@ -118,7 +124,7 @@ export default function Page() {
             aria-pressed={panel === "notizen"}
             onClick={() => setPanel((p) => (p === "notizen" ? "keins" : "notizen"))}
           >
-            Notizen{notizen.trim() ? " ●" : ""}
+            Notizen{notizen.trim() ? (briefing.trim() ? " ✓" : " ●") : ""}
           </button>
           <button
             type="button"
@@ -148,7 +154,14 @@ export default function Page() {
       </header>
 
       {panel === "notizen" && (
-        <NotesPanel notizen={notizen} onNotizenChange={notizenSetzen} settings={settings} />
+        <NotesPanel
+          notizen={notizen}
+          onNotizenChange={notizenSetzen}
+          briefing={briefing}
+          onBriefingChange={(w) => briefingStore.set(w)}
+          kontext={kontext}
+          settings={settings}
+        />
       )}
       {panel === "kontext" && (
         <ContextPanel
@@ -193,7 +206,13 @@ export default function Page() {
         </section>
 
         <section className="spalte spalte--seite">
-          <LiveListener speech={speech} notizen={notizen} kontext={kontext} settings={settings} />
+          <LiveListener
+            speech={speech}
+            notizen={notizen}
+            briefing={briefing}
+            kontext={kontext}
+            settings={settings}
+          />
         </section>
       </div>
 

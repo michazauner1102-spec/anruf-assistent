@@ -23,6 +23,9 @@ Texte ersetzt.
 **Vorbereitung**
 
 - **Notizen** zum Gegenüber: dessen Website auslesen lassen oder einfügen
+- **Notizen auswerten**: ein Knopfdruck macht aus roher Recherche ein Briefing —
+  Kurzprofil, Ansatzpunkt, Gesprächsaufhänger mit dem jeweiligen Detail, erwartbare
+  Einwände, Vorsicht. Das Briefing geht als Kontext mit ins Gespräch
 - **Kontext** zum eigenen Angebot: eigene Website auslesen lassen, Datei laden oder
   einfügen — die Auswertung achtet dabei auf Leistungen, Positionierung und Preise statt
   auf Gesprächsaufhänger
@@ -209,6 +212,7 @@ src/
   app/api/objection-answer/     Antwort auf einen Einwand (streamt)
   app/api/summary/              Zusammenfassung fürs CRM (streamt)
   app/api/research/             Website auslesen und zusammenfassen
+  app/api/briefing/             Notizen zu einem Briefing verdichten
   app/api/health/               Anbieter und Modell prüfen
   app/api/matcher-test/         Regressionstest der Erkennung
   components/LiveListener.tsx   Mithören, Treffer, Modell-Abfrage
@@ -217,6 +221,7 @@ src/
   components/ContextPanel.tsx   eigener Kontext, eigenes Skript
   lib/model.ts                  Ollama und OpenAI-kompatibel hinter einer Schnittstelle
   lib/prompt.ts                 System-Prompts, Verlauf als Chat-Historie
+  lib/streamRoute.ts            gemeinsame Streaming-Mechanik der Modell-Routen
   lib/search.ts                 Einwand-Erkennung
   lib/urlGuard.ts               SSRF-Schutz
   data/profile.ts               eigene Angaben (lokal, nicht im Repo)

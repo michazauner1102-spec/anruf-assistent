@@ -1,43 +1,34 @@
 import { resolveConfig } from "@/lib/model";
-import { buildSummaryMessages } from "@/lib/prompt";
+import { buildBriefingMessages } from "@/lib/prompt";
 import { streameModellAntwort } from "@/lib/streamRoute";
-import type { Zug } from "@/lib/conversation";
 import type { Settings } from "@/lib/settings";
 import { pruefeZiel } from "@/lib/urlGuard";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
-  let verlauf: Zug[] = [];
-  let ergebnis = "";
   let notizen = "";
+  let kontext = "";
   let ueberschreibung: Partial<Settings> | undefined;
 
   try {
     const body = (await request.json()) as {
-      verlauf?: unknown;
-      ergebnis?: unknown;
       notes?: unknown;
+      kontext?: unknown;
       settings?: Partial<Settings>;
     };
-    if (Array.isArray(body.verlauf)) {
-      verlauf = body.verlauf.filter(
-        (z): z is Zug =>
-          !!z &&
-          typeof z === "object" &&
-          typeof (z as Zug).text === "string" &&
-          ((z as Zug).rolle === "gegenueber" || (z as Zug).rolle === "anrufer"),
-      );
-    }
-    if (typeof body.ergebnis === "string") ergebnis = body.ergebnis;
     if (typeof body.notes === "string") notizen = body.notes;
+    if (typeof body.kontext === "string") kontext = body.kontext;
     ueberschreibung = body.settings;
   } catch {
     return Response.json({ error: "Ungültiger Request-Body." }, { status: 400 });
   }
 
-  if (verlauf.length === 0) {
-    return Response.json({ error: "Kein Gesprächsverlauf vorhanden." }, { status: 400 });
+  if (notizen.trim().length < 40) {
+    return Response.json(
+      { error: "Zu wenig Notizen zum Auswerten — erst Recherche einfügen oder Website auslesen." },
+      { status: 400 },
+    );
   }
 
   if (ueberschreibung?.baseUrl) {
@@ -47,9 +38,8 @@ export async function POST(request: Request) {
     }
   }
 
-  const config = resolveConfig(ueberschreibung);
-  return streameModellAntwort(config, buildSummaryMessages(verlauf, { ergebnis, notizen }), {
+  return streameModellAntwort(resolveConfig(ueberschreibung), buildBriefingMessages(notizen, kontext), {
     timeoutMs: 60_000,
-    timeoutText: "Zeitüberschreitung bei der Zusammenfassung.",
+    timeoutText: "Zeitüberschreitung bei der Auswertung.",
   });
 }
