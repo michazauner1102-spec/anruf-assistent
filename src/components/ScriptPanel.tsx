@@ -34,7 +34,7 @@ export function ScriptPanel({
   const rechercheDa = briefing.trim().length >= 20 || notizen.trim().length >= 40;
 
   const anpassen = async () => {
-    if (laedt || !rechercheDa) return;
+    if (laedt) return;
     setLaedt(true);
     setFehler(null);
     setVorschlag("");
@@ -54,6 +54,13 @@ export function ScriptPanel({
   };
 
   const vorschlagSchritte = vorschlag.trim() ? parseScript(vorschlag).length : 0;
+
+  // Modelle ersetzen Platzhalter gern durch echte Werte — das faellt sonst erst
+  // im Gespraech auf, wenn der falsche Name dasteht.
+  const platzhalter = (text: string) => new Set(text.match(/\[[^\]]+\]/g) ?? []);
+  const verloren = vorschlag.trim()
+    ? [...platzhalter(basisText)].filter((p) => !platzhalter(vorschlag).has(p))
+    : [];
 
   return (
     <div className="panel">
@@ -102,8 +109,9 @@ export function ScriptPanel({
       <div className="panel__trenner" />
 
       <p className="panel__hinweis">
-        Aus der Recherche im Notizbereich wird ein Vorschlag, der ein bis zwei Stellen des
-        Skripts auf diesen Gesprächspartner zuschneidet. Das Basis-Skript oben bleibt dabei
+        Schreibt das Skript in gesprochene Sprache um: kurze Sätze, keine Bürowörter, so wie
+        man es am Telefon wirklich sagt. Liegt Recherche im Notizbereich vor, kommen ein bis
+        zwei konkrete Details zu diesem Gesprächspartner dazu. Das Basis-Skript oben bleibt
         unverändert.
       </p>
 
@@ -112,15 +120,15 @@ export function ScriptPanel({
           type="button"
           className="btn btn--info"
           onClick={() => void anpassen()}
-          disabled={laedt || !rechercheDa}
+          disabled={laedt}
         >
-          {laedt ? "passt an …" : "An diesen Gesprächspartner anpassen"}
+          {laedt
+            ? "schreibt um …"
+            : rechercheDa
+              ? "Menschlicher formulieren und zuschneiden"
+              : "Menschlicher formulieren"}
         </button>
       </div>
-
-      {!rechercheDa && (
-        <p className="empty">Dafür erst im Notizbereich Recherche einfügen und auswerten.</p>
-      )}
       {fehler && <p className="empty">{fehler}</p>}
 
       {angepasst.trim() && !vorschlag && (
@@ -157,6 +165,12 @@ export function ScriptPanel({
               spellCheck={false}
               onChange={(e) => setVorschlag(e.target.value)}
             />
+          )}
+          {verloren.length > 0 && !laedt && (
+            <p className="ursache">
+              Achtung: {verloren.join(", ")} fehlt im Vorschlag — dort steht jetzt vermutlich
+              ein fester Wert statt der Einsetzstelle.
+            </p>
           )}
           {!laedt && vorschlag && (
             <div className="frage-row" style={{ marginBottom: 0 }}>

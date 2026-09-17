@@ -35,8 +35,9 @@ Texte ersetzt.
   auf Gesprächsaufhänger
 - **Skript** als eigener Bereich: eigenen Ablauf laden oder eintippen, ersetzt den
   mitgelieferten
-- **Skript auf den Gesprächspartner zuschneiden**: aus der Recherche schlägt das Modell
-  eine angepasste Fassung vor. Sie legt sich über das Basis-Skript, ohne es zu ändern
+- **Skript menschlicher formulieren**: schreibt das Skript in gesprochene Sprache um —
+  kurze Sätze, keine Bürowörter. Liegt Recherche vor, kommen ein bis zwei konkrete
+  Details dazu. Legt sich über das Basis-Skript, ohne es zu ändern
 
 **Nach dem Gespräch**
 
@@ -130,9 +131,15 @@ Ich habe gesehen, dass [Thema] bei Ihnen läuft.
 Eckige Klammern werden hervorgehoben; `[Name]`, `[Vorname]` und `[Nachname]` füllt das
 Tool mit dem Gesprächspartner aus den Notizen. Leeres Feld = mitgeliefertes Skript.
 
-**Zuschneiden:** Liegt Recherche vor, schlägt „An diesen Gesprächspartner anpassen" eine
-Fassung vor, die ein bis zwei Stellen konkret macht. Struktur, Schrittzahl und Platzhalter
-bleiben, und das Basis-Skript wird nicht überschrieben — die angepasste Fassung liegt
+**Menschlicher formulieren:** Der Knopf schreibt das Skript in gesprochene Sprache um —
+kurze Hauptsätze, höchstens ein Nebensatz, keine Substantivketten, keine Bürowörter wie
+„Lösung", „Prozess" oder „Mehrwert". Aus „Ich biete Ihnen einen kostenlosen
+30-Minuten-Prozesscheck an" wird „Ich schau mir das mit Ihnen an. 30 Minuten, kostet
+nichts."
+
+Liegt Recherche im Notizbereich vor, kommen zusätzlich ein bis zwei konkrete Details zu
+diesem Gesprächspartner hinein. Struktur, Schrittzahl, Überschriften und Platzhalter
+bleiben unangetastet; das Basis-Skript wird nicht überschrieben — die neue Fassung liegt
 darüber und verschwindet mit „Neues Gespräch" in der Nachbereitung.
 
 ## Auf die eigene Branche anpassen

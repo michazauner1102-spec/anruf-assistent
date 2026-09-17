@@ -32,13 +32,6 @@ export async function POST(request: Request) {
   if (skript.trim().length < 20) {
     return Response.json({ error: "Kein Skript zum Anpassen vorhanden." }, { status: 400 });
   }
-  if (briefing.trim().length < 20 && notizen.trim().length < 40) {
-    return Response.json(
-      { error: "Zu wenig Recherche — erst Notizen einfügen und auswerten." },
-      { status: 400 },
-    );
-  }
-
   if (ueberschreibung?.baseUrl) {
     const zielOk = await pruefeZiel(ueberschreibung.baseUrl, { erlaubeLoopback: true });
     if (!zielOk.ok) {
