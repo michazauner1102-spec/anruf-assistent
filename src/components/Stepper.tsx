@@ -28,7 +28,8 @@ export function Stepper({
     <section aria-label="Gesprächsablauf">
       <div className="card card--step">
         <p className="progress">
-          Schritt {Math.min(index, last) + 1} von {steps.length} · {current.title}
+          Schritt {Math.min(index, last) + 1} von {steps.length}
+          {current.title ? ` · ${current.title}` : ""}
         </p>
 
         {current.variants && (

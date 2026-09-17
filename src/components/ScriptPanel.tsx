@@ -79,7 +79,9 @@ export function ScriptPanel({
         <code>#</code> beginnt einen Schritt, <code>&gt;</code> ist ein Hinweis, alles andere
         ist ein gesprochener Satz. Text in <code>[eckigen Klammern]</code> wird hervorgehoben —{" "}
         <code>[Name]</code>, <code>[Vorname]</code> und <code>[Nachname]</code> füllt das Tool
-        mit dem Gesprächspartner aus den Notizen.
+        mit dem Gesprächspartner aus den Notizen. Kommt im Text gar kein <code>#</code> vor,
+        trennt die <strong>Leerzeile</strong> die Schritte — ein eingefügtes Skript läuft also
+        sofort Karte für Karte.
       </p>
 
       <div className="frage-row">

@@ -8,16 +8,27 @@ import type { Step } from "@/data/script";
  *   > Pause. Antwort abwarten.
  *
  * "#" beginnt einen Schritt, ">" ist ein Hinweis, alles andere ist ein
- * gesprochener Satz. Leerzeilen werden ignoriert. Text in eckigen Klammern
- * hebt das UI als Einsetzstelle hervor.
+ * gesprochener Satz. Text in eckigen Klammern hebt das UI als Einsetzstelle
+ * hervor.
+ *
+ * Ein eingefuegtes Skript hat oft gar keine Ueberschriften — dann stuende alles
+ * auf einer einzigen Karte. Kommt im ganzen Text kein "#" vor, trennt deshalb
+ * die Leerzeile die Schritte. Sobald es Ueberschriften gibt, bleiben Leerzeilen
+ * das, was sie dort sind: reine Absaetze innerhalb eines Schritts.
  */
 export function parseScript(text: string): Step[] {
+  const zeilen = text.split(/\r?\n/);
+  const hatUeberschriften = zeilen.some((z) => z.trim().startsWith("#"));
+
   const schritte: Step[] = [];
   let aktuell: Step | null = null;
 
-  for (const rohzeile of text.split(/\r?\n/)) {
+  for (const rohzeile of zeilen) {
     const zeile = rohzeile.trim();
-    if (!zeile) continue;
+    if (!zeile) {
+      if (!hatUeberschriften) aktuell = null;
+      continue;
+    }
 
     if (zeile.startsWith("#")) {
       aktuell = {
@@ -29,9 +40,10 @@ export function parseScript(text: string): Step[] {
       continue;
     }
 
-    // Zeilen vor der ersten Ueberschrift bekommen einen Schritt spendiert.
+    // Zeilen ohne eigene Ueberschrift bekommen einen Schritt spendiert. Der
+    // Titel bleibt leer — "Schritt 2 von 6 · Schritt 2" hilft niemandem.
     if (!aktuell) {
-      aktuell = { n: 1, title: "Schritt 1", lines: [] };
+      aktuell = { n: schritte.length + 1, title: "", lines: [] };
       schritte.push(aktuell);
     }
 
@@ -43,7 +55,9 @@ export function parseScript(text: string): Step[] {
     }
   }
 
-  return schritte.filter((s) => (s.lines?.length ?? 0) > 0 || s.hint);
+  return schritte
+    .filter((s) => (s.lines?.length ?? 0) > 0 || s.hint)
+    .map((s, i) => ({ ...s, n: i + 1 }));
 }
 
 /** Erzeugt aus vorhandenen Schritten das Textformat — als Startpunkt zum Bearbeiten. */

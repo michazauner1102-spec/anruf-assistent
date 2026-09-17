@@ -190,6 +190,14 @@ Tool mit dem Gesprächspartner aus den Notizen. Für die Anrede versteht es sowo
 `[Anrede]` als auch die ausgeschriebene Form `Frau/Herr`. Leeres Feld = mitgeliefertes
 Skript.
 
+**Einfach einfügen geht auch.** Kommt im ganzen Text kein `#` vor, trennt die **Leerzeile**
+die Schritte — ein Skript aus einem Dokument läuft also sofort Karte für Karte, ohne dass
+du Überschriften setzt. Sobald es Überschriften gibt, sind Leerzeilen wieder das, was sie
+dort sind: Absätze innerhalb eines Schritts.
+
+Bringt eine Zeile ihre eigenen Anführungszeichen mit, setzt das Tool keine zweiten
+darum.
+
 Der schnellste Weg führt über den Notizbereich: Recherche einfügen oder Website auslesen,
 dann **„Skript anpassen"**. Das nimmt das hinterlegte Skript, schneidet es zu und meldet,
 welche Zeilen sich geändert haben. „Ganzes Skript anzeigen" klappt die vollständige

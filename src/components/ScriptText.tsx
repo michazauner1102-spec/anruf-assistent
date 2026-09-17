@@ -47,6 +47,11 @@ export function ScriptText({ text, werte }: { text: string; werte?: PlatzhalterW
   );
 }
 
+// Ein eingefuegtes Skript bringt seine eigenen Anfuehrungszeichen schon mit —
+// gerade, typografisch oder franzoesisch. Dann kaeme sonst ein zweites Paar dazu.
+const OEFFNEND = /^["\u201e\u201c\u00ab\u201a]/;
+const SCHLIESSEND = /["\u201c\u201d\u00bb\u2018]$/;
+
 /** Wörtlich vorlesbarer Satz in Anführungszeichen. */
 export function Speech({
   text,
@@ -57,11 +62,14 @@ export function Speech({
   big?: boolean;
   werte?: PlatzhalterWerte;
 }) {
+  const roh = text.trim();
+  const schonZitiert = roh.length > 1 && OEFFNEND.test(roh) && SCHLIESSEND.test(roh);
+
   return (
     <p className={big ? "speech speech--big" : "speech"}>
-      {"\u201e"}
-      <ScriptText text={text} werte={werte} />
-      {"\u201c"}
+      {schonZitiert ? "" : "\u201e"}
+      <ScriptText text={roh} werte={werte} />
+      {schonZitiert ? "" : "\u201c"}
     </p>
   );
 }
