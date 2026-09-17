@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { settingsFuerRequest, type Settings } from "@/lib/settings";
 import { anredeAus, ansprechpartnerAus, type Anrede } from "@/lib/platzhalter";
+import { geaenderteZeilen, skriptAnpassen } from "@/lib/skriptAnpassen";
 import { leseStrom } from "@/lib/streamClient";
 import { CopyButton } from "./CopyButton";
 import { WebsiteImport } from "./WebsiteImport";
@@ -17,6 +18,9 @@ export function NotesPanel({
   anrede,
   onAnredeChange,
   kontext,
+  basisSkript,
+  onAngepasstChange,
+  onZumSkript,
   settings,
 }: {
   notizen: string;
@@ -28,10 +32,45 @@ export function NotesPanel({
   anrede: Anrede;
   onAnredeChange: (wert: Anrede) => void;
   kontext: string;
+  basisSkript: string;
+  onAngepasstChange: (wert: string) => void;
+  onZumSkript: () => void;
   settings: Partial<Settings>;
 }) {
   const [laedt, setLaedt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
+  const [skriptLaedt, setSkriptLaedt] = useState(false);
+  const [skriptErgebnis, setSkriptErgebnis] = useState<string[] | null>(null);
+
+  const genugNotizen = notizen.trim().length >= 40;
+
+  // Direkt von hier aus: nimmt das hinterlegte Skript und schneidet es zu,
+  // ohne den Umweg über den Skript-Bereich.
+  const skriptZuschneiden = async () => {
+    if (skriptLaedt || !genugNotizen) return;
+    setSkriptLaedt(true);
+    setFehler(null);
+    setSkriptErgebnis(null);
+    try {
+      const { text, fehler: f } = await skriptAnpassen({
+        basisText: basisSkript,
+        briefing,
+        notizen,
+        modus: "zuschnitt",
+        settings,
+      });
+      if (f || !text) {
+        setFehler(f ?? "Das Modell hat nicht geantwortet.");
+        return;
+      }
+      onAngepasstChange(text);
+      setSkriptErgebnis(geaenderteZeilen(basisSkript, text));
+    } catch {
+      setFehler("Verbindung zur App unterbrochen.");
+    } finally {
+      setSkriptLaedt(false);
+    }
+  };
 
   const auswerten = async () => {
     if (laedt || notizen.trim().length < 40) return;
@@ -119,12 +158,51 @@ export function NotesPanel({
           type="button"
           className="btn btn--info"
           onClick={() => void auswerten()}
-          disabled={laedt || notizen.trim().length < 40}
+          disabled={laedt || !genugNotizen}
         >
           {laedt ? "wertet aus …" : "Notizen auswerten"}
         </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => void skriptZuschneiden()}
+          disabled={skriptLaedt || !genugNotizen}
+        >
+          {skriptLaedt ? "passt an …" : "Skript anpassen"}
+        </button>
         {briefing && !laedt && <CopyButton text={briefing} label="Briefing kopieren" />}
       </div>
+
+      {skriptErgebnis && (
+        <div className="card card--model">
+          <span className="card__label">
+            Skript angepasst ·{" "}
+            {skriptErgebnis.length === 0
+              ? "nichts geändert, es passte nichts"
+              : `${skriptErgebnis.length} Zeile${skriptErgebnis.length === 1 ? "" : "n"} geändert`}
+          </span>
+          {skriptErgebnis.map((zeile) => (
+            <p key={zeile} className="speech">
+              {zeile}
+            </p>
+          ))}
+          <div className="frage-row" style={{ marginBottom: 0 }}>
+            <button type="button" className="btn btn--schmal" onClick={onZumSkript}>
+              Im Skript ansehen
+            </button>
+            <button
+              type="button"
+              className="btn btn--schmal"
+              onClick={() => {
+                onAngepasstChange("");
+                setSkriptErgebnis(null);
+              }}
+            >
+              Rückgängig
+            </button>
+          </div>
+        </div>
+      )}
 
       {fehler && <p className="empty">{fehler}</p>}
 

@@ -24,6 +24,9 @@ Texte ersetzt.
 **Vorbereitung**
 
 - **Notizen** zum Gegenüber: dessen Website auslesen lassen oder einfügen
+- **Skript anpassen direkt aus den Notizen**: ein Klick nimmt das hinterlegte Skript und
+  schneidet es auf diese Firma zu — ohne Umweg über den Skript-Bereich. Zeigt an, welche
+  Zeilen sich geändert haben, mit „Rückgängig"
 - **Notizen auswerten**: ein Knopfdruck macht aus roher Recherche ein Briefing —
   Ansprechpartner, Kurzprofil, Ansatzpunkt, Gesprächsaufhänger mit dem jeweiligen
   Detail, erwartbare Einwände, Vorsicht. Das Briefing geht als Kontext mit ins Gespräch
@@ -161,7 +164,13 @@ Tool mit dem Gesprächspartner aus den Notizen. Für die Anrede versteht es sowo
 `[Anrede]` als auch die ausgeschriebene Form `Frau/Herr`. Leeres Feld = mitgeliefertes
 Skript.
 
-Zwei getrennte Eingriffe, beide lassen das Basis-Skript unangetastet:
+Der schnellste Weg führt über den Notizbereich: Recherche einfügen oder Website auslesen,
+dann **„Skript anpassen"**. Das nimmt das hinterlegte Skript, schneidet es zu und meldet,
+welche Zeilen sich geändert haben. Ein Briefing braucht es dafür nicht — die Rohnotizen
+genügen.
+
+Im Skript-Bereich selbst gibt es dieselbe Anpassung mit Vorschau, dazu einen zweiten
+Eingriff. Beide lassen das Basis-Skript unangetastet:
 
 **Auf die Firma zuschneiden:** Ihre Vorlage bleibt stehen. Geändert werden höchstens zwei
 Zeilen, in die ein konkretes Detail aus der Recherche wirklich passt — keine sprachliche

@@ -16,7 +16,7 @@ import { CHECKLIST, STEPS } from "@/data/script";
 import { PROFILE } from "@/data/profile";
 import { platzhalterAusName, type Anrede } from "@/lib/platzhalter";
 import { terminLabel, terminUrl } from "@/lib/terminLink";
-import { parseScript } from "@/lib/scriptParser";
+import { parseScript, scriptToText } from "@/lib/scriptParser";
 import type { HealthState } from "@/lib/health";
 import { createLocalStore } from "@/lib/localStore";
 import { settingsFuerRequest, type Settings } from "@/lib/settings";
@@ -93,6 +93,12 @@ export default function Page() {
     }
     return STEPS;
   }, [angepasst, skriptText]);
+
+  // Was "Skript anpassen" als Grundlage nimmt: eigenes Skript, sonst das mitgelieferte.
+  const basisSkript = useMemo(
+    () => skriptText.trim() || scriptToText(STEPS),
+    [skriptText],
+  );
 
   const platzhalter = useMemo(() => platzhalterAusName(kontakt, anrede), [kontakt, anrede]);
 
@@ -227,6 +233,9 @@ export default function Page() {
           anrede={anrede}
           onAnredeChange={(w) => anredeStore.set(w)}
           kontext={kontext}
+          basisSkript={basisSkript}
+          onAngepasstChange={(w) => angepasstStore.set(w)}
+          onZumSkript={() => setPanel("skript")}
           settings={settings}
         />
       )}

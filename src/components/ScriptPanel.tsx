@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { STEPS } from "@/data/script";
 import { parseScript, scriptToText } from "@/lib/scriptParser";
-import { settingsFuerRequest, type Settings } from "@/lib/settings";
-import { leseStrom } from "@/lib/streamClient";
+import type { Settings } from "@/lib/settings";
+import { geaenderteZeilen, skriptAnpassen } from "@/lib/skriptAnpassen";
 import { FileButton } from "./FileButton";
 
 export function ScriptPanel({
@@ -39,17 +39,14 @@ export function ScriptPanel({
     setFehler(null);
     setVorschlag("");
     try {
-      const { text, fehler: f } = await leseStrom(
-        "/api/script-adapt",
-        {
-          skript: basisText,
-          briefing,
-          notes: notizen,
-          modus,
-          settings: settingsFuerRequest(settings),
-        },
-        setVorschlag,
-      );
+      const { text, fehler: f } = await skriptAnpassen({
+        basisText,
+        briefing,
+        notizen,
+        modus,
+        settings,
+        onDelta: setVorschlag,
+      });
       if (f) setFehler(f);
       else setVorschlag(text.trim());
     } catch {
@@ -61,15 +58,7 @@ export function ScriptPanel({
 
   const vorschlagSchritte = vorschlag.trim() ? parseScript(vorschlag).length : 0;
 
-  // Zeigt schwarz auf weiss, wie viel tatsaechlich angefasst wurde.
-  const zeilen = (text: string) =>
-    text
-      .split(/\r?\n/)
-      .map((z) => z.trim())
-      .filter(Boolean);
-  const geaendert = vorschlag.trim()
-    ? zeilen(vorschlag).filter((z, i) => z !== zeilen(basisText)[i]).length
-    : 0;
+  const geaendert = vorschlag.trim() ? geaenderteZeilen(basisText, vorschlag).length : 0;
 
   // Modelle ersetzen Platzhalter gern durch echte Werte — das faellt sonst erst
   // im Gespraech auf, wenn der falsche Name dasteht.
