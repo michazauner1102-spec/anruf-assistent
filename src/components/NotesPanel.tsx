@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { settingsFuerRequest, type Settings } from "@/lib/settings";
-import { ansprechpartnerAus } from "@/lib/platzhalter";
+import { anredeAus, ansprechpartnerAus, type Anrede } from "@/lib/platzhalter";
 import { leseStrom } from "@/lib/streamClient";
 import { CopyButton } from "./CopyButton";
 import { WebsiteImport } from "./WebsiteImport";
@@ -14,6 +14,8 @@ export function NotesPanel({
   onBriefingChange,
   kontakt,
   onKontaktChange,
+  anrede,
+  onAnredeChange,
   kontext,
   settings,
 }: {
@@ -23,6 +25,8 @@ export function NotesPanel({
   onBriefingChange: (wert: string) => void;
   kontakt: string;
   onKontaktChange: (wert: string) => void;
+  anrede: Anrede;
+  onAnredeChange: (wert: Anrede) => void;
   kontext: string;
   settings: Partial<Settings>;
 }) {
@@ -49,6 +53,8 @@ export function NotesPanel({
       // Nennt die Auswertung einen Ansprechpartner, wandert er direkt ins Skript.
       const gefunden = ansprechpartnerAus(fertig);
       if (gefunden) onKontaktChange(gefunden);
+      const angeredet = anredeAus(fertig);
+      if (angeredet) onAnredeChange(angeredet);
     } catch {
       setFehler("Verbindung zur App unterbrochen.");
     } finally {
@@ -73,6 +79,24 @@ export function NotesPanel({
           onChange={(e) => onKontaktChange(e.target.value)}
         />
       </label>
+
+      <div className="variants">
+        {(["Herr", "Frau", ""] as Anrede[]).map((wert) => (
+          <button
+            key={wert || "offen"}
+            type="button"
+            className="variant"
+            aria-pressed={anrede === wert}
+            onClick={() => onAnredeChange(wert)}
+          >
+            {wert || "offen lassen"}
+          </button>
+        ))}
+      </div>
+      <p className="panel__hinweis">
+        Ersetzt {"\u201e"}Frau/Herr{"\u201c"} und <code>[Anrede]</code> im Skript. Die Auswertung schlägt das
+        nur vor, wenn es in den Notizen steht — aus dem Vornamen wird nicht geraten.
+      </p>
 
       <WebsiteImport
         zweck="gegenueber"

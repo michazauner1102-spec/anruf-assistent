@@ -243,6 +243,9 @@ Schreibe auf Deutsch, knapp, genau in dieser Struktur, ohne Einleitung:
 Ansprechpartner: <Vor- und Nachname der Person, die man anruft, falls in den
 Notizen genannt — sonst ein Gedankenstrich. Keine Funktionsbezeichnung, nur
 der Name.>
+Anrede: <Herr oder Frau, aber nur wenn es aus den Notizen eindeutig hervorgeht,
+etwa aus "Inhaberin", "Geschäftsführer" oder einer Nennung als Frau/Herr. Rate
+nicht anhand des Vornamens — im Zweifel ein Gedankenstrich.>
 Kurzprofil: <1 bis 2 Sätze: wer ist die Firma, was macht sie>
 Ansatzpunkt: <1 bis 2 Stichpunkte: wo vermutlich Zeit oder Geld liegen bleibt>
 Gesprächsaufhänger: <2 bis 3 Stichpunkte, jeder mit dem konkreten Detail aus den
@@ -308,10 +311,12 @@ WAS UNANGETASTET BLEIBT:
 1. Struktur: dieselben Schritte in derselben Reihenfolge, dieselben
    Überschriften. Nichts hinzufügen, nichts weglassen.
 2. Die Absicht jedes Schritts. Aus einer Frage wird keine Aussage.
-3. Platzhalter in eckigen Klammern. Aus [Vorname] wird NIE ein echter Name —
+3. Schreibweisen wie "Frau/Herr" bleiben genauso stehen — das Tool setzt die
+   richtige Anrede selbst ein.
+4. Platzhalter in eckigen Klammern. Aus [Vorname] wird NIE ein echter Name —
    [Vorname] bleibt buchstäblich [Vorname], ebenso [Name] und [Nachname]. Das
    Tool setzt sie später selbst ein. Ersetzt du sie, ist das ein Fehler.
-4. Hinweiszeilen mit ">" sind Notizen an den Anrufer, keine gesprochenen Sätze.
+5. Hinweiszeilen mit ">" sind Notizen an den Anrufer, keine gesprochenen Sätze.
    Die lässt du inhaltlich, wie sie sind.
 
 FAKTEN:

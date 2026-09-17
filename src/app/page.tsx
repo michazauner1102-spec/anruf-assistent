@@ -14,7 +14,7 @@ import { useSpeechRecognition } from "@/components/useSpeechRecognition";
 import { WrapUpPanel } from "@/components/WrapUpPanel";
 import { CHECKLIST, STEPS } from "@/data/script";
 import { PROFILE } from "@/data/profile";
-import { platzhalterAusName } from "@/lib/platzhalter";
+import { platzhalterAusName, type Anrede } from "@/lib/platzhalter";
 import { terminLabel, terminUrl } from "@/lib/terminLink";
 import { parseScript } from "@/lib/scriptParser";
 import type { HealthState } from "@/lib/health";
@@ -30,6 +30,7 @@ const kontaktStore = createLocalStore("anruf-assistent.kontakt", "");
 // Auf den Gesprächspartner zugeschnittene Fassung — liegt ÜBER dem Basis-Skript,
 // damit die Basis beim nächsten Anruf unverändert dasteht.
 const angepasstStore = createLocalStore("anruf-assistent.skript-angepasst", "");
+const anredeStore = createLocalStore("anruf-assistent.anrede", "");
 
 type Panel = "keins" | "notizen" | "skript" | "kontext" | "nachbereitung" | "einstellungen";
 
@@ -68,6 +69,11 @@ export default function Page() {
     kontaktStore.getSnapshot,
     kontaktStore.getServerSnapshot,
   );
+  const anrede = useSyncExternalStore(
+    anredeStore.subscribe,
+    anredeStore.getSnapshot,
+    anredeStore.getServerSnapshot,
+  ) as Anrede;
   const skriptText = useSyncExternalStore(
     skriptStore.subscribe,
     skriptStore.getSnapshot,
@@ -88,7 +94,7 @@ export default function Page() {
     return STEPS;
   }, [angepasst, skriptText]);
 
-  const platzhalter = useMemo(() => platzhalterAusName(kontakt), [kontakt]);
+  const platzhalter = useMemo(() => platzhalterAusName(kontakt, anrede), [kontakt, anrede]);
 
   const settings = useMemo<Partial<Settings>>(() => {
     try {
@@ -218,6 +224,8 @@ export default function Page() {
           onBriefingChange={(w) => briefingStore.set(w)}
           kontakt={kontakt}
           onKontaktChange={(w) => kontaktStore.set(w)}
+          anrede={anrede}
+          onAnredeChange={(w) => anredeStore.set(w)}
           kontext={kontext}
           settings={settings}
         />

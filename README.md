@@ -30,6 +30,10 @@ Texte ersetzt.
 - Findet die Auswertung einen **Namen**, steht er direkt im Skript: `[Vorname]`,
   `[Nachname]` und `[Name]` werden gefüllt und bleiben markiert. Titel wie „Dr." fallen
   für die Anrede weg, Partikel wie „von" bleiben am Nachnamen. Überschreibbar
+- **Anrede**: aus „Frau/Herr" im Skript wird die richtige, sobald sie bekannt ist. Die
+  Auswertung schlägt sie nur vor, wenn die Notizen sie belegen („Inhaber",
+  „Geschäftsführerin") — aus dem Vornamen wird nicht geraten. Umschaltbar auf Herr, Frau
+  oder offen lassen
 - **Kontext** zum eigenen Angebot: eigene Website auslesen lassen, Datei laden oder
   einfügen — die Auswertung achtet dabei auf Leistungen, Positionierung und Preise statt
   auf Gesprächsaufhänger
@@ -153,7 +157,9 @@ Ich habe gesehen, dass [Thema] bei Ihnen läuft.
 
 `#` beginnt einen Schritt, `>` ist ein Hinweis, alles andere ist ein gesprochener Satz.
 Eckige Klammern werden hervorgehoben; `[Name]`, `[Vorname]` und `[Nachname]` füllt das
-Tool mit dem Gesprächspartner aus den Notizen. Leeres Feld = mitgeliefertes Skript.
+Tool mit dem Gesprächspartner aus den Notizen. Für die Anrede versteht es sowohl
+`[Anrede]` als auch die ausgeschriebene Form `Frau/Herr`. Leeres Feld = mitgeliefertes
+Skript.
 
 **Menschlicher formulieren:** Der Knopf schreibt das Skript in gesprochene Sprache um —
 kurze Hauptsätze, höchstens ein Nebensatz, keine Substantivketten, keine Bürowörter wie

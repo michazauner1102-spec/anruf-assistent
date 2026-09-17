@@ -1,6 +1,7 @@
-import type { PlatzhalterWerte } from "@/lib/platzhalter";
+import { istAnredeStelle, type PlatzhalterWerte } from "@/lib/platzhalter";
 
-const PLATZHALTER = /(\[[^\]]+\])/g;
+// Eckige Klammern und die ausgeschriebene Anrede "Frau/Herr" sind beide Einsetzstellen.
+const PLATZHALTER = /(\[[^\]]+\]|Frau\s*\/\s*Herrn?|Herrn?\s*\/\s*Frau)/g;
 
 /**
  * Hebt Platzhalter wie [Name] hervor. Ist fuer einen Platzhalter ein Wert
@@ -11,6 +12,14 @@ export function ScriptText({ text, werte }: { text: string; werte?: PlatzhalterW
   return (
     <>
       {text.split(PLATZHALTER).map((teil, i) => {
+        if (istAnredeStelle(teil)) {
+          const anrede = werte?.anrede;
+          return (
+            <mark key={i} className={anrede ? "ph ph--gefuellt" : "ph"}>
+              {anrede ?? teil}
+            </mark>
+          );
+        }
         if (!/^\[[^\]]+\]$/.test(teil)) return <span key={i}>{teil}</span>;
         const wert = werte?.[teil.slice(1, -1).trim().toLowerCase()];
         return (
