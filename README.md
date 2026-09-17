@@ -97,6 +97,30 @@ Dazu: **Chrome** (andere Browser können es nicht zuverlässig), Aufruf über `l
 Das Mikrofon nimmt beide Seiten auf. Der Mitschnitt ist deshalb **nicht nach Sprechern
 getrennt** — die Zusammenfassung weiß das und ordnet nur zu, was eindeutig ist.
 
+### Wenn das Zuhören den Anruf abwürgt
+
+Die Spracherkennung von Chrome lässt **kein Mikrofon auswählen** — sie nimmt immer das
+Standard-Eingabegerät des Systems. Telefoniert ein anderes Programm über dasselbe Gerät,
+kann der Anruf beim Start abbrechen. Die App zeigt beim Zuhören an, welches Gerät Chrome
+gerade belegt.
+
+Was hilft, in dieser Reihenfolge:
+
+1. **Über das Handy telefonieren, Lautsprecher an.** Dann hat der Anruf nichts mit dem
+   Audiogerät des Rechners zu tun, und die Kollision entfällt. So ist das Tool gedacht.
+2. **Läuft der Anruf über den Rechner:** im Telefonie-Programm ein anderes Eingabegerät
+   einstellen als das System-Standardgerät. Chrome nimmt immer das Standardgerät — die
+   beiden müssen auseinandergehen.
+3. **Zuhören vor dem Wählen starten.** Das Gerät wird dann einmal belegt, bevor das
+   Gespräch steht, statt mitten hinein.
+4. **Bluetooth-Headsets sind besonders empfindlich**, weil das System dabei zwischen
+   Musik- und Freisprechprofil umschaltet. Ein kabelgebundenes Mikrofon oder das
+   eingebaute ist stabiler.
+
+Intern hält die App das Mikrofon während einer Sitzung **durchgehend**, statt es nach
+jeder Sprechpause neu zu greifen — Chrome beendet die Erkennung nämlich bei jeder Pause.
+Dieses ständige Greifen und Loslassen war die vermeidbare Hälfte des Problems.
+
 ## Modell einstellen
 
 | | lokal | Cloud |

@@ -34,6 +34,7 @@ export function LiveListener({
     letzteAeusserung,
     vorlaeufig,
     fehler,
+    geraet,
     verlauf,
     verlaufErgaenzen,
     starten,
@@ -153,7 +154,7 @@ export function LiveListener({
         <button
           type="button"
           className={laeuft ? "btn btn--stop" : "btn btn--go"}
-          onClick={laeuft ? stoppen : starten}
+          onClick={() => (laeuft ? stoppen() : void starten())}
           disabled={!unterstuetzt}
         >
           {laeuft ? "⏹ Zuhören beenden" : "🎤 Zuhören starten"}
@@ -172,6 +173,15 @@ export function LiveListener({
           </button>
         )}
       </div>
+
+      {laeuft && geraet && (
+        <p className="kontext-hinweis">
+          Chrome hört über {"\u201e"}
+          {geraet}
+          {"\u201c"} — das Standard-Eingabegerät. Läuft Ihr Telefonat über dasselbe Gerät,
+          kann es dadurch abbrechen.
+        </p>
+      )}
 
       {!unterstuetzt && (
         <p className="privacy">
