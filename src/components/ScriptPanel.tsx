@@ -5,6 +5,7 @@ import { STEPS } from "@/data/script";
 import { parseScript, scriptToText } from "@/lib/scriptParser";
 import type { Settings } from "@/lib/settings";
 import { geaenderteZeilen, skriptAnpassen } from "@/lib/skriptAnpassen";
+import { AlsBasisButton } from "./AlsBasisButton";
 import { FileButton } from "./FileButton";
 
 export function ScriptPanel({
@@ -117,7 +118,9 @@ export function ScriptPanel({
         Zwei getrennte Eingriffe: <strong>Zuschneiden</strong> lässt Ihre Vorlage stehen und
         ändert höchstens zwei Zeilen, in die ein Detail aus der Recherche passt.{" "}
         <strong>Menschlicher formulieren</strong> schreibt dagegen jeden Satz in gesprochene
-        Sprache um. Das Basis-Skript oben bleibt in beiden Fällen unverändert.
+        Sprache um. Das Basis-Skript oben bleibt in beiden Fällen unverändert —{" "}
+        {"\u201e"}Übernehmen{"\u201c"} gilt nur für diese Firma. Soll die neue Fassung ab jetzt
+        für alle gelten, legen Sie sie als Basis fest.
       </p>
 
       <div className="frage-row">
@@ -150,7 +153,9 @@ export function ScriptPanel({
       {angepasst.trim() && !vorschlag && (
         <div className="card card--model">
           <span className="card__label">
-            Angepasste Fassung aktiv · {parseScript(angepasst).length} Schritte — Basis unverändert
+            {angepasst.trim() === basisText.trim()
+              ? `Diese Fassung ist jetzt das Basis-Skript · ${parseScript(angepasst).length} Schritte`
+              : `Angepasste Fassung aktiv · ${parseScript(angepasst).length} Schritte — Basis unverändert`}
           </span>
           <textarea
             className="input textarea"
@@ -160,6 +165,7 @@ export function ScriptPanel({
             onChange={(e) => onAngepasstChange(e.target.value)}
           />
           <div className="frage-row" style={{ marginBottom: 0 }}>
+            <AlsBasisButton neu={angepasst} basis={skript} onBasis={onSkriptChange} />
             <button type="button" className="btn btn--schmal" onClick={() => onAngepasstChange("")}>
               Zurück zur Basis
             </button>
@@ -208,6 +214,7 @@ export function ScriptPanel({
               >
                 Übernehmen
               </button>
+              <AlsBasisButton neu={vorschlag} basis={skript} onBasis={onSkriptChange} />
               <button
                 type="button"
                 className="btn btn--schmal"

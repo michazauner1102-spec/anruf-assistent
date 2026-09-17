@@ -5,6 +5,7 @@ import { settingsFuerRequest, type Settings } from "@/lib/settings";
 import { anredeAus, ansprechpartnerAus, type Anrede } from "@/lib/platzhalter";
 import { geaenderteZeilen, skriptAnpassen } from "@/lib/skriptAnpassen";
 import { leseStrom } from "@/lib/streamClient";
+import { AlsBasisButton } from "./AlsBasisButton";
 import { CopyButton } from "./CopyButton";
 import { WebsiteImport } from "./WebsiteImport";
 
@@ -19,6 +20,8 @@ export function NotesPanel({
   onAnredeChange,
   kontext,
   basisSkript,
+  basisRoh,
+  onBasisChange,
   onAngepasstChange,
   onZumSkript,
   settings,
@@ -35,6 +38,9 @@ export function NotesPanel({
   onAnredeChange: (wert: Anrede) => void;
   kontext: string;
   basisSkript: string;
+  /** Der rohe Speicherwert — leer heißt: das mitgelieferte Skript gilt. */
+  basisRoh: string;
+  onBasisChange: (wert: string) => void;
   onAngepasstChange: (wert: string) => void;
   onZumSkript: () => void;
   settings: Partial<Settings>;
@@ -221,6 +227,7 @@ export function NotesPanel({
             >
               {ganzesSkript ? "Nur Änderungen zeigen" : "Ganzes Skript anzeigen"}
             </button>
+            <AlsBasisButton neu={skriptErgebnis.text} basis={basisRoh} onBasis={onBasisChange} />
             <button type="button" className="btn btn--schmal" onClick={onZumSkript}>
               Im Skript-Bereich öffnen
             </button>
@@ -233,7 +240,7 @@ export function NotesPanel({
                 setGanzesSkript(false);
               }}
             >
-              Rückgängig
+              Anpassung verwerfen
             </button>
           </div>
         </div>

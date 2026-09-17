@@ -474,14 +474,13 @@ code {
 .frage-row {
   margin-top: 14px;
   margin-bottom: var(--gap);
+  /* Knöpfe mit fester Breite laufen am Handy sonst aus dem Panel heraus.
+     Volle .btn schrumpfen weiter, statt umzubrechen — dort ändert das nichts. */
+  flex-wrap: wrap;
 }
 
 /* Steht ein Kontrollkästchen neben einem Knopf, wird der Knopf am Handy sonst
    zu einem Streifen zusammengedrückt. Dann lieber umbrechen. */
-.frage-row:has(.check) {
-  flex-wrap: wrap;
-}
-
 .frage-row:has(.check) .btn {
   flex: 1 1 160px;
 }

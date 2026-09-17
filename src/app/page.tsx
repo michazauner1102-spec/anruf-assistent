@@ -260,6 +260,8 @@ export default function Page() {
           onAnredeChange={(w) => aendereAktiven({ anrede: w })}
           kontext={kontext}
           basisSkript={basisSkript}
+          basisRoh={skriptText}
+          onBasisChange={(w) => skriptStore.set(w)}
           onAngepasstChange={(w) => aendereAktiven({ skriptAngepasst: w })}
           onZumSkript={() => {
             setPanel("einrichten");

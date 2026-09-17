@@ -68,6 +68,9 @@ Texte ersetzt.
 - **Skript menschlicher formulieren**: schreibt das Skript in gesprochene Sprache um —
   kurze Sätze, keine Bürowörter. Liegt Recherche vor, kommen ein bis zwei konkrete
   Details dazu. Legt sich über das Basis-Skript, ohne es zu ändern
+- **Als Basis-Skript festlegen**: eine neue Fassung gilt normalerweise nur für die eine
+  Firma. Ein Knopf hebt sie zum Basis-Skript für alle — mit „Rückgängig", das die
+  vorherige Basis zurückholt
 
 **Nach dem Gespräch**
 
@@ -210,6 +213,22 @@ nichts."
 Liegt Recherche vor, kommen zusätzlich ein bis zwei konkrete Details hinein. Struktur,
 Schrittzahl, Überschriften und Platzhalter bleiben unangetastet; die neue Fassung liegt
 über dem Basis-Skript und verschwindet mit „Neues Gespräch" in der Nachbereitung.
+
+### Eine neue Fassung zur Basis machen
+
+Beide Eingriffe legen ihr Ergebnis **über** das Basis-Skript, für diese eine Firma.
+Gefällt dir die neue Fassung grundsätzlich, macht **„Als Basis-Skript festlegen"** sie zur
+Vorlage für alle weiteren Anrufe. Der Knopf steht überall, wo eine neue Fassung entsteht:
+am Vorschlag, an der aktiven Fassung im Skript-Bereich und an dem Ergebnis, das der
+Notizbereich zeigt.
+
+Zwei Dinge dazu:
+
+- **„Rückgängig"** holt die vorherige Basis zurück, solange du die Seite nicht neu lädst.
+- Eine **zugeschnittene** Fassung trägt Details der gerade angerufenen Firma — als Basis
+  stünden die dann bei jeder. Dafür eignet sich eher „Menschlicher formulieren", das nur
+  die Sprache ändert. Ist der Text schon die Basis, ist der Knopf ausgegraut und sagt
+  warum.
 
 ## Signale festlegen
 
@@ -356,6 +375,7 @@ src/
   components/ScriptPanel.tsx    eigenes Skript
   components/ContextPanel.tsx   Angaben zum eigenen Angebot
   components/SignalEditor.tsx   Signale festlegen, geteilt von Notizen und Liste
+  components/AlsBasisButton.tsx neue Fassung zum Basis-Skript machen, mit Rückgängig
   lib/model.ts                  Ollama und OpenAI-kompatibel hinter einer Schnittstelle
   lib/prompt.ts                 System-Prompts, Verlauf als Chat-Historie
   lib/streamRoute.ts            gemeinsame Streaming-Mechanik der Modell-Routen
