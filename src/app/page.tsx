@@ -23,6 +23,7 @@ import { platzhalterAusName, type Anrede } from "@/lib/platzhalter";
 import { ladeProtokoll, MAX_PROTOKOLLE, type Anrufprotokoll } from "@/lib/protokoll";
 import { parseScript, scriptToText } from "@/lib/scriptParser";
 import { settingsFuerRequest, type Settings } from "@/lib/settings";
+import { ladeSignale } from "@/lib/signale";
 import { terminLabel, terminUrl } from "@/lib/terminLink";
 
 // Global: gilt für alle Anrufe. Alles Kontaktbezogene liegt in der Liste.
@@ -30,6 +31,7 @@ const settingsStore = createLocalStore("anruf-assistent.settings", "{}");
 const kontextStore = createLocalStore("anruf-assistent.kontext", "");
 const skriptStore = createLocalStore("anruf-assistent.skript", "");
 const protokollStore = createLocalStore("anruf-assistent.protokoll", "[]");
+const signaleStore = createLocalStore("anruf-assistent.signale", "[]");
 
 type Panel = "keins" | "liste" | "notizen" | "nachbereitung" | "einrichten";
 type Einrichten = "skript" | "kontext" | "statistik" | "einstellungen";
@@ -69,6 +71,11 @@ export default function Page() {
     protokollStore.getSnapshot,
     protokollStore.getServerSnapshot,
   );
+  const signaleRoh = useSyncExternalStore(
+    signaleStore.subscribe,
+    signaleStore.getSnapshot,
+    signaleStore.getServerSnapshot,
+  );
 
   const settings = useMemo<Partial<Settings>>(() => {
     try {
@@ -78,6 +85,12 @@ export default function Page() {
     }
   }, [settingsRoh]);
   const protokolle = useMemo(() => ladeProtokoll(protokollRoh), [protokollRoh]);
+  // Gilt für jede Website — nicht für einen einzelnen Kontakt.
+  const signale = useMemo(() => ladeSignale(signaleRoh), [signaleRoh]);
+  const signaleSetzen = useCallback(
+    (neu: string[]) => signaleStore.set(JSON.stringify(neu)),
+    [],
+  );
 
   // Felder des aktiven Kontakts
   const notizen = aktiv?.notizen ?? "";
@@ -230,6 +243,8 @@ export default function Page() {
           onLeeren={alleLeeren}
           basisSkript={basisSkript}
           settings={settings}
+          signale={signale}
+          onSignaleChange={signaleSetzen}
         />
       )}
 
@@ -251,6 +266,8 @@ export default function Page() {
             setEinrichten("skript");
           }}
           settings={settings}
+          signale={signale}
+          onSignaleChange={signaleSetzen}
         />
       )}
 

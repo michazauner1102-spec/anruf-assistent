@@ -162,13 +162,43 @@ belegbare Punkte (Zahlen, Zertifikate, Garantien), und was ausdrücklich NICHT
 angeboten wird. Nur was wirklich im Text steht — nichts erfinden. Keine
 Einleitung, nur die Punkte.`;
 
-export const RECHERCHE_PROMPT = `Du bekommst den Rohtext einer fremden Website. ${FREMDTEXT_WARNUNG}
-
-Fasse in maximal 8 kurzen Stichpunkten auf Deutsch zusammen, was für ein
+const RECHERCHE_OFFEN = `Fasse in maximal 8 kurzen Stichpunkten auf Deutsch zusammen, was für ein
 Verkaufstelefonat nützlich ist: Firmenname, Standort, Größe/Team, Schwerpunkte,
 Besonderheiten, erkennbare Technik (CRM, Chatbot, Portale), offene Stellen.
 Nur was wirklich im Text steht — nichts erfinden. Keine Einleitung, nur die
 Punkte. Enthält der Text keine Firmeninformationen, sag genau das.`;
+
+/**
+ * Hat der Anrufer Signale hinterlegt, wird aus der freien Zusammenfassung eine
+ * Checkliste: jedes Signal bekommt eine Zeile, auch wenn die Seite nichts dazu
+ * hergibt. Damit sind zwei Firmen vergleichbar, und eine Lücke ist als Lücke
+ * erkennbar statt einfach zu fehlen.
+ */
+export function recherchePrompt(signale: string[] = []): string {
+  const kopf = `Du bekommst den Rohtext einer fremden Website. ${FREMDTEXT_WARNUNG}`;
+  if (signale.length === 0) return `${kopf}\n\n${RECHERCHE_OFFEN}`;
+
+  const zeilen = signale
+    .map((s) => `- ${s}: <was die Seite dazu hergibt, in einem kurzen Satz — sonst: nicht gefunden>`)
+    .join("\n");
+
+  return `${kopf}
+
+Der Anrufer hat festgelegt, worauf es ihm ankommt. Geh diese Punkte der Reihe
+nach durch und beantworte jeden einzeln — auch den, zu dem die Seite nichts
+hergibt. Dass etwas fehlt, ist für ihn genauso wichtig wie ein Treffer.
+
+Antworte auf Deutsch, ohne Einleitung, genau in dieser Form:
+
+Signale:
+${zeilen}
+Weiteres: <bis zu 4 Stichpunkte, die für ein Verkaufstelefonat nützlich sind und
+oben noch nicht vorkommen — Firmenname, Standort, Größe, Schwerpunkte>
+
+Regeln: Ausschließlich, was wirklich im Text steht. Nichts erfinden, nichts
+vermuten, keine Zahl nennen, die dort nicht vorkommt. Bist du unsicher, schreibe
+"nicht gefunden". Keine Zeile weglassen, keine hinzufügen.`;
+}
 
 export const ERGEBNISSE = [
   "Termin vereinbart",
@@ -235,7 +265,17 @@ export function buildSummaryMessages(
  * Die Notizen koennen aus einer fremden Website stammen — deshalb dieselbe
  * Warnung wie bei der Website-Auswertung.
  */
-const BRIEFING_PROMPT = `Du bereitest einen Anrufer auf ein Verkaufstelefonat vor. Du bekommst seine
+function briefingPrompt(signale: string[] = []): string {
+  // Die hinterlegten Signale bekommen eine eigene Zeile, damit sie die
+  // Verdichtung überleben: ohne sie fiele "dazu stand nichts da" einfach weg.
+  const signalBlock =
+    signale.length === 0
+      ? ""
+      : `Signale: <eine Zeile je Punkt, in dieser Reihenfolge, keinen auslassen>
+${signale.map((s) => `- ${s}: <Befund aus den Notizen — sonst: nicht bekannt>`).join("\n")}
+`;
+
+  return `Du bereitest einen Anrufer auf ein Verkaufstelefonat vor. Du bekommst seine
 gesammelten Notizen zum Gesprächspartner. ${FREMDTEXT_WARNUNG}
 
 Schreibe auf Deutsch, knapp, genau in dieser Struktur, ohne Einleitung:
@@ -247,7 +287,7 @@ Anrede: <Herr oder Frau, aber nur wenn es aus den Notizen eindeutig hervorgeht,
 etwa aus "Inhaberin", "Geschäftsführer" oder einer Nennung als Frau/Herr. Rate
 nicht anhand des Vornamens — im Zweifel ein Gedankenstrich.>
 Kurzprofil: <1 bis 2 Sätze: wer ist die Firma, was macht sie>
-Ansatzpunkt: <1 bis 2 Stichpunkte: wo vermutlich Zeit oder Geld liegen bleibt>
+${signalBlock}Ansatzpunkt: <1 bis 2 Stichpunkte: wo vermutlich Zeit oder Geld liegen bleiben>
 Gesprächsaufhänger: <2 bis 3 Stichpunkte, jeder mit dem konkreten Detail aus den
 Notizen, auf das er sich bezieht>
 Erwartbare Einwände: <2 bis 3 Stichpunkte, aus der Lage abgeleitet — hier ist
@@ -258,8 +298,13 @@ Regeln: Kurzprofil, Ansatzpunkt und Gesprächsaufhänger ausschließlich aus den
 Notizen — nichts erfinden, nicht schmeicheln, keine Zahl nennen, die dort nicht
 steht. Lässt sich ein Punkt nicht belegen, schreibe einen Gedankenstrich. Nur
 bei "Erwartbare Einwände" darfst du aus der Lage schließen.`;
+}
 
-export function buildBriefingMessages(notizen: string, kontext?: string): ChatNachricht[] {
+export function buildBriefingMessages(
+  notizen: string,
+  kontext?: string,
+  signale: string[] = [],
+): ChatNachricht[] {
   const eigenes = (kontext ?? "").trim().slice(0, MAX_KONTEXT);
   const teile: string[] = [];
   if (eigenes) {
@@ -268,7 +313,7 @@ export function buildBriefingMessages(notizen: string, kontext?: string): ChatNa
   teile.push(`Notizen zum Gesprächspartner:\n<<<NOTIZEN>>>\n${notizen.trim().slice(0, MAX_NOTIZEN)}\n<<<ENDE>>>`);
 
   return [
-    { role: "system", content: BRIEFING_PROMPT },
+    { role: "system", content: briefingPrompt(signale) },
     { role: "user", content: teile.join("\n\n") },
   ];
 }

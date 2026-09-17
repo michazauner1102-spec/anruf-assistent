@@ -7,6 +7,7 @@ import { settingsFuerRequest, type Settings } from "@/lib/settings";
 import { skriptAnpassen } from "@/lib/skriptAnpassen";
 import { leseStrom } from "@/lib/streamClient";
 import { FileButton } from "./FileButton";
+import { SignalEditor } from "./SignalEditor";
 
 export function ListPanel({
   liste,
@@ -17,6 +18,8 @@ export function ListPanel({
   onLeeren,
   basisSkript,
   settings,
+  signale,
+  onSignaleChange,
 }: {
   liste: Liste;
   onAktiv: (id: string) => void;
@@ -26,6 +29,8 @@ export function ListPanel({
   onLeeren: () => void;
   basisSkript: string;
   settings: Partial<Settings>;
+  signale: string[];
+  onSignaleChange: (neu: string[]) => void;
 }) {
   const [eingabe, setEingabe] = useState("");
   const [laeuft, setLaeuft] = useState(false);
@@ -66,6 +71,7 @@ export function ListPanel({
               body: JSON.stringify({
                 url: kontakt.url,
                 zweck: "gegenueber",
+                signale,
                 settings: settingsFuerRequest(settings),
               }),
             });
@@ -84,7 +90,7 @@ export function ListPanel({
         // 2. Briefing daraus verdichten
         const { text: briefing } = await leseStrom(
           "/api/briefing",
-          { notes: notizen, settings: settingsFuerRequest(settings) },
+          { notes: notizen, signale, settings: settingsFuerRequest(settings) },
           () => {},
         );
         if (!briefing.trim()) continue;
@@ -147,6 +153,8 @@ export function ListPanel({
       {liste.kontakte.length > 0 && (
         <>
           <div className="panel__trenner" />
+
+          <SignalEditor signale={signale} onChange={onSignaleChange} />
 
           <div className="frage-row">
             <button

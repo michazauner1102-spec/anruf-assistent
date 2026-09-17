@@ -28,6 +28,8 @@ Texte ersetzt.
 - **Vorab-Recherche für die ganze Liste**: Website auslesen, Briefing bauen, Name und
   Anrede übernehmen — auf Wunsch gleich das Skript zuschneiden. Läuft nacheinander,
   abbrechbar, überspringt nicht erreichbare Seiten
+- Die hinterlegten **Signale** werden dabei für jede Firma abgefragt — so sind die
+  Einträge untereinander vergleichbar
 - Notizen, Briefing, Name, Anrede und zugeschnittenes Skript gehören zum jeweiligen
   Kontakt. Umschalten lädt alles mit, „Nächster Kontakt" springt zum nächsten offenen
 
@@ -41,6 +43,9 @@ Texte ersetzt.
 **Vorbereitung**
 
 - **Notizen** zum Gegenüber: dessen Website auslesen lassen oder einfügen
+- **Signale**: einmal festlegen, worauf beim Auslesen jeder Website geachtet wird. Gilt ab
+  dann für jede weitere Adresse und für die ganze Liste. Jedes Signal bekommt eine eigene
+  Zeile — auch dann, wenn die Seite nichts dazu hergibt
 - **Skript anpassen direkt aus den Notizen**: ein Klick nimmt das hinterlegte Skript und
   schneidet es auf diese Firma zu — ohne Umweg über den Skript-Bereich. Zeigt erst nur die
   geänderten Zeilen, auf Wunsch das ganze Skript, dort auch gleich korrigierbar. Mit
@@ -206,6 +211,38 @@ Liegt Recherche vor, kommen zusätzlich ein bis zwei konkrete Details hinein. St
 Schrittzahl, Überschriften und Platzhalter bleiben unangetastet; die neue Fassung liegt
 über dem Basis-Skript und verschwindet mit „Neues Gespräch" in der Nachbereitung.
 
+## Signale festlegen
+
+Normalerweise fasst das Modell eine Website frei zusammen — bei jeder Firma etwas anders,
+und was fehlt, fehlt einfach. Mit Signalen legst du stattdessen fest, was dich
+interessiert:
+
+> Offene Stellen · Größe des Teams · Erkennbare Software und Tools · Wer beantwortet
+> eingehende Anfragen
+
+Das Feld sitzt direkt über der Adresszeile im Notizbereich und noch einmal über der
+Stapel-Recherche in der Liste — beides derselbe Satz Signale. Einmal eingetragen, bleibt
+er stehen, bis du ihn änderst. Ein paar allgemeine Vorschläge stehen zum Anklicken bereit,
+eigene kommen per Eingabefeld dazu. Maximal zwölf; mehr macht die Auswertung flacher.
+
+Die Ausgabe wird dann zur Checkliste statt zur freien Zusammenfassung:
+
+```
+Signale:
+- Offene Stellen: nicht gefunden
+- Größe des Teams: ca. 2.500 Mitarbeiter an zehn Standorten
+- Erkennbare Software und Tools: Lexware, Haufe X360, smartsteuer
+Weiteres:
+- Standort: Freiburg im Breisgau
+```
+
+**„Nicht gefunden" ist der eigentliche Gewinn.** Dass zu einem Punkt nichts dasteht, ist
+im Gespräch oft so brauchbar wie ein Treffer — und ohne diese Zeile wüsstest du nicht, ob
+niemand nachgesehen hat oder ob wirklich nichts da war. Aus demselben Grund überleben die
+Signale die Auswertung: sie stehen auch im Briefing, das du im Gespräch liest.
+
+Ohne hinterlegte Signale bleibt alles beim Alten — dann fasst das Modell frei zusammen.
+
 ## Aufbau der Oberfläche
 
 Die Kopfzeile trennt, was zum Anruf gehört, von dem, was man einmal einrichtet:
@@ -318,6 +355,7 @@ src/
   components/StatsPanel.tsx     Auswertung der Anrufe
   components/ScriptPanel.tsx    eigenes Skript
   components/ContextPanel.tsx   Angaben zum eigenen Angebot
+  components/SignalEditor.tsx   Signale festlegen, geteilt von Notizen und Liste
   lib/model.ts                  Ollama und OpenAI-kompatibel hinter einer Schnittstelle
   lib/prompt.ts                 System-Prompts, Verlauf als Chat-Historie
   lib/streamRoute.ts            gemeinsame Streaming-Mechanik der Modell-Routen
@@ -325,6 +363,7 @@ src/
   lib/urlGuard.ts               SSRF-Schutz
   lib/liste.ts                  Kontakte der Anrufliste
   lib/protokoll.ts              Anrufprotokoll und Statistik
+  lib/signale.ts                Signale putzen, entdoppeln, kappen
   data/profile.ts               eigene Angaben (lokal, nicht im Repo)
   data/script.ts                eigenes Skript (lokal)
   data/objections.ts            eigene Einwände (lokal)

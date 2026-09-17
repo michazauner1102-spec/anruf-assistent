@@ -1,6 +1,7 @@
 import { authHeaders, chatEndpoint, nichtErreichbarText, resolveConfig } from "@/lib/model";
 import { pruefeZiel } from "@/lib/urlGuard";
-import { EIGEN_RECHERCHE_PROMPT, RECHERCHE_PROMPT } from "@/lib/prompt";
+import { EIGEN_RECHERCHE_PROMPT, recherchePrompt } from "@/lib/prompt";
+import { ladeSignale } from "@/lib/signale";
 import type { Settings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
@@ -104,15 +105,20 @@ function textAusHtml(html: string): string {
 export async function POST(request: Request) {
   let roh = "";
   let eigenesAngebot = false;
+  let signale: string[] = [];
   let ueberschreibung: Partial<Settings> | undefined;
   try {
     const body = (await request.json()) as {
       url?: unknown;
       zweck?: unknown;
+      signale?: unknown;
       settings?: Partial<Settings>;
     };
     if (typeof body.url === "string") roh = body.url.trim();
     eigenesAngebot = body.zweck === "eigen";
+    // Auch die eigenen Signale werden geputzt und gekappt — der Server
+    // uebernimmt nichts ungeprueft in einen Prompt.
+    signale = eigenesAngebot ? [] : ladeSignale(body.signale);
     ueberschreibung = body.settings;
   } catch {
     return Response.json({ error: "Ungültiger Request-Body." }, { status: 400 });
@@ -141,7 +147,9 @@ export async function POST(request: Request) {
   }
 
   const config = resolveConfig(ueberschreibung);
-  const anweisung = eigenesAngebot ? EIGEN_RECHERCHE_PROMPT : RECHERCHE_PROMPT;
+  const anweisung = eigenesAngebot ? EIGEN_RECHERCHE_PROMPT : recherchePrompt(signale);
+  // Jedes Signal braucht eine eigene Zeile — sonst bricht die Antwort mittendrin ab.
+  const budget = Math.min(900, 400 + signale.length * 45);
 
   try {
     const body =
@@ -150,7 +158,7 @@ export async function POST(request: Request) {
             model: config.model,
             stream: false,
             temperature: 0.2,
-            max_tokens: 400,
+            max_tokens: budget,
             messages: [
               { role: "system", content: anweisung },
               { role: "user", content: `<<<WEBSITE-ROHTEXT>>>\n${seitentext}\n<<<ENDE>>>` },
@@ -160,7 +168,7 @@ export async function POST(request: Request) {
             model: config.model,
             stream: false,
             think: false,
-            options: { temperature: 0.2, num_predict: 400 },
+            options: { temperature: 0.2, num_predict: budget },
             messages: [
               { role: "system", content: anweisung },
               { role: "user", content: `<<<WEBSITE-ROHTEXT>>>\n${seitentext}\n<<<ENDE>>>` },

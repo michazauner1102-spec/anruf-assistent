@@ -476,6 +476,16 @@ code {
   margin-bottom: var(--gap);
 }
 
+/* Steht ein Kontrollkästchen neben einem Knopf, wird der Knopf am Handy sonst
+   zu einem Streifen zusammengedrückt. Dann lieber umbrechen. */
+.frage-row:has(.check) {
+  flex-wrap: wrap;
+}
+
+.frage-row:has(.check) .btn {
+  flex: 1 1 160px;
+}
+
 .btn {
   flex: 1 1 0;
   min-width: 0;
@@ -665,4 +675,88 @@ code {
 
 .footer a:hover {
   color: var(--text);
+}
+
+/* ---------- Signale ---------- */
+
+.signale {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.signale__kopf {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.signale__kopf > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.signale .panel__hinweis {
+  margin: 10px 0 10px;
+}
+
+.signale .frage-row {
+  margin-bottom: 0;
+}
+
+.signal-liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.signal-liste--vorschlag {
+  margin: 10px 0 0;
+}
+
+.signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 2px 6px 2px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.signal button {
+  border: none;
+  background: none;
+  color: var(--muted-2);
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 6px;
+}
+
+.signal button:hover {
+  color: var(--text);
+}
+
+.signal--vorschlag {
+  padding: 2px 10px;
+  border-style: dashed;
+  border-color: var(--border-strong);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.signal--vorschlag:hover {
+  color: var(--text);
+  border-style: solid;
 }

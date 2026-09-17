@@ -65,66 +65,77 @@ export function useListe() {
   const liste = useMemo(() => (roh ? ladeListe(roh) : LEERE_LISTE), [roh]);
   const aktiv = useMemo(() => aktiverKontakt(liste), [liste]);
 
-  const schreiben = useCallback((neu: Liste) => {
-    listeStore.set(JSON.stringify(neu));
+  /**
+   * Jede Aenderung liest den aktuellen Stand frisch aus dem Speicher, statt den
+   * aus dem letzten Rendern zu nehmen. Im Stapellauf liegen zwischen zwei
+   * Schreibvorgaengen Sekunden — mit dem alten Stand haette der zweite den
+   * ersten ueberschrieben, und die gerade ausgelesenen Notizen waeren weg.
+   */
+  const aktualisieren = useCallback((aendern: (aktuell: Liste) => Liste) => {
+    const gespeichert = listeStore.getSnapshot();
+    listeStore.set(JSON.stringify(aendern(gespeichert ? ladeListe(gespeichert) : LEERE_LISTE)));
   }, []);
 
   const setzeAktiv = useCallback(
-    (id: string) => schreiben({ ...liste, aktivId: id }),
-    [liste, schreiben],
+    (id: string) => aktualisieren((l) => ({ ...l, aktivId: id })),
+    [aktualisieren],
   );
 
   /** Aendert Felder des aktiven Kontakts. Legt einen an, falls die Liste leer ist. */
   const aendereAktiven = useCallback(
-    (teil: Partial<Kontakt>) => {
-      if (!aktiv) {
-        const erster = neuerKontakt(teil);
-        schreiben({ kontakte: [erster], aktivId: erster.id });
-        return;
-      }
-      schreiben({
-        ...liste,
-        kontakte: liste.kontakte.map((k) => (k.id === aktiv.id ? { ...k, ...teil } : k)),
-      });
-    },
-    [aktiv, liste, schreiben],
+    (teil: Partial<Kontakt>) =>
+      aktualisieren((l) => {
+        const jetztAktiv = aktiverKontakt(l);
+        if (!jetztAktiv) {
+          const erster = neuerKontakt(teil);
+          return { kontakte: [erster], aktivId: erster.id };
+        }
+        return {
+          ...l,
+          kontakte: l.kontakte.map((k) => (k.id === jetztAktiv.id ? { ...k, ...teil } : k)),
+        };
+      }),
+    [aktualisieren],
   );
 
   const aendereKontakt = useCallback(
     (id: string, teil: Partial<Kontakt>) =>
-      schreiben({
-        ...liste,
-        kontakte: liste.kontakte.map((k) => (k.id === id ? { ...k, ...teil } : k)),
-      }),
-    [liste, schreiben],
+      aktualisieren((l) => ({
+        ...l,
+        kontakte: l.kontakte.map((k) => (k.id === id ? { ...k, ...teil } : k)),
+      })),
+    [aktualisieren],
   );
 
   const ergaenzen = useCallback(
     (neue: Kontakt[]) => {
       if (neue.length === 0) return;
-      const kontakte = [...liste.kontakte, ...neue];
-      schreiben({ kontakte, aktivId: liste.aktivId || neue[0].id });
+      aktualisieren((l) => ({
+        kontakte: [...l.kontakte, ...neue],
+        aktivId: l.aktivId || neue[0].id,
+      }));
     },
-    [liste, schreiben],
+    [aktualisieren],
   );
 
   const entfernen = useCallback(
-    (id: string) => {
-      const kontakte = liste.kontakte.filter((k) => k.id !== id);
-      schreiben({ kontakte, aktivId: liste.aktivId === id ? (kontakte[0]?.id ?? "") : liste.aktivId });
-    },
-    [liste, schreiben],
+    (id: string) =>
+      aktualisieren((l) => {
+        const kontakte = l.kontakte.filter((k) => k.id !== id);
+        return { kontakte, aktivId: l.aktivId === id ? (kontakte[0]?.id ?? "") : l.aktivId };
+      }),
+    [aktualisieren],
   );
 
   const zumNaechsten = useCallback(() => {
     if (!aktiv) return false;
     const naechster = naechsterOffener(liste, aktiv.id);
     if (!naechster) return false;
-    schreiben({ ...liste, aktivId: naechster.id });
+    aktualisieren((l) => ({ ...l, aktivId: naechster.id }));
     return true;
-  }, [aktiv, liste, schreiben]);
+  }, [aktiv, liste, aktualisieren]);
 
-  const alleLeeren = useCallback(() => schreiben(LEERE_LISTE), [schreiben]);
+  const alleLeeren = useCallback(() => aktualisieren(() => LEERE_LISTE), [aktualisieren]);
 
   return {
     liste,

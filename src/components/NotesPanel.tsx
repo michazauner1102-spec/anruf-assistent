@@ -22,6 +22,8 @@ export function NotesPanel({
   onAngepasstChange,
   onZumSkript,
   settings,
+  signale,
+  onSignaleChange,
 }: {
   notizen: string;
   onNotizenChange: (wert: string) => void;
@@ -36,6 +38,8 @@ export function NotesPanel({
   onAngepasstChange: (wert: string) => void;
   onZumSkript: () => void;
   settings: Partial<Settings>;
+  signale: string[];
+  onSignaleChange: (neu: string[]) => void;
 }) {
   const [laedt, setLaedt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -84,7 +88,7 @@ export function NotesPanel({
     try {
       const { text, fehler: f } = await leseStrom(
         "/api/briefing",
-        { notes: notizen, kontext, settings: settingsFuerRequest(settings) },
+        { notes: notizen, kontext, signale, settings: settingsFuerRequest(settings) },
         onBriefingChange,
       );
       if (f) {
@@ -147,6 +151,8 @@ export function NotesPanel({
         onErgebnis={onNotizenChange}
         settings={settings}
         platzhalter="Website der Firma, z. B. beispiel-gmbh.de"
+        signale={signale}
+        onSignaleChange={onSignaleChange}
       />
 
       <textarea

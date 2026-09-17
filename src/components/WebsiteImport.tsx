@@ -2,12 +2,17 @@
 
 import { useState } from "react";
 import { settingsFuerRequest, type Settings } from "@/lib/settings";
+import { SignalEditor } from "./SignalEditor";
 
 /**
  * Liest eine Website aus und haengt die Zusammenfassung an ein Textfeld an.
  * "zweck" entscheidet, worauf das Modell beim Zusammenfassen achtet: beim
  * Gegenueber auf Anhaltspunkte fuers Gespraech, beim eigenen Angebot auf
  * Leistungen und Abgrenzung.
+ *
+ * Beim Gegenueber laesst sich zusaetzlich festlegen, welche Signale gefragt
+ * sind. Die gelten dann fuer jede weitere Adresse — deshalb steht der Editor
+ * direkt neben dem Feld, in das die Adresse kommt.
  */
 export function WebsiteImport({
   zweck,
@@ -15,12 +20,16 @@ export function WebsiteImport({
   onErgebnis,
   settings,
   platzhalter,
+  signale,
+  onSignaleChange,
 }: {
   zweck: "gegenueber" | "eigen";
   aktuell: string;
   onErgebnis: (text: string) => void;
   settings: Partial<Settings>;
   platzhalter: string;
+  signale?: string[];
+  onSignaleChange?: (neu: string[]) => void;
 }) {
   const [url, setUrl] = useState("");
   const [laedt, setLaedt] = useState(false);
@@ -37,6 +46,7 @@ export function WebsiteImport({
         body: JSON.stringify({
           url: url.trim(),
           zweck,
+          signale: signale ?? [],
           settings: settingsFuerRequest(settings),
         }),
       });
@@ -65,6 +75,10 @@ export function WebsiteImport({
 
   return (
     <>
+      {signale && onSignaleChange && (
+        <SignalEditor signale={signale} onChange={onSignaleChange} />
+      )}
+
       <div className="frage-row">
         <input
           className="input"
