@@ -227,8 +227,11 @@ Zwei Dinge dazu:
 - **„Rückgängig"** holt die vorherige Basis zurück, solange du die Seite nicht neu lädst.
 - Eine **zugeschnittene** Fassung trägt Details der gerade angerufenen Firma — als Basis
   stünden die dann bei jeder. Dafür eignet sich eher „Menschlicher formulieren", das nur
-  die Sprache ändert. Ist der Text schon die Basis, ist der Knopf ausgegraut und sagt
-  warum.
+  die Sprache ändert.
+- Ist der Text schon die Basis, steht dort kein Knopf, sondern „✓ Ist bereits das
+  Basis-Skript". Die Karte darüber sagt dann „Wortgleich mit dem Basis-Skript — gilt für
+  alle Firmen", und aus „Zurück zur Basis" wird „Kopie dieser Firma entfernen": Der Text
+  bleibt, weg ist nur die Kopie, die an diesem Kontakt hängt.
 
 ## Signale festlegen
 

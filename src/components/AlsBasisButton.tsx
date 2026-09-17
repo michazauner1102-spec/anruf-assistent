@@ -37,9 +37,7 @@ export function AlsBasisButton({
   if (gesetzt) {
     return (
       <>
-        <button type="button" className="btn btn--schmal" disabled>
-          Ist jetzt die Basis
-        </button>
+        <span className="knopf-notiz">✓ Ist jetzt das Basis-Skript</span>
         <button
           type="button"
           className="link-btn"
@@ -54,16 +52,18 @@ export function AlsBasisButton({
     );
   }
 
+  // Ein ausgegrauter Knopf sieht aus wie ein kaputter Knopf. Steht der Text
+  // schon als Basis, gibt es deshalb gar keinen — sondern den Grund im Klartext.
+  if (schonBasis) {
+    return <span className="knopf-notiz">✓ Ist bereits das Basis-Skript</span>;
+  }
+
   return (
     <button
       type="button"
       className="btn btn--schmal"
-      disabled={text === "" || schonBasis}
-      title={
-        schonBasis
-          ? "Dieser Text ist bereits das Basis-Skript."
-          : "Ersetzt das Basis-Skript — es gilt dann für alle Firmen."
-      }
+      disabled={text === ""}
+      title="Ersetzt das Basis-Skript — es gilt dann für alle Firmen."
       onClick={() => {
         setVorher(basis);
         onBasis(text);

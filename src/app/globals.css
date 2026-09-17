@@ -759,3 +759,13 @@ code {
   color: var(--text);
   border-style: solid;
 }
+
+/* Erklärung an der Stelle, an der sonst ein toter Knopf stünde. */
+.knopf-notiz {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}

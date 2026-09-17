@@ -57,6 +57,11 @@ export function ScriptPanel({
     }
   };
 
+  // Nach dem Festlegen sind beide wortgleich — die Karte darf dann nicht
+  // weiter behaupten, hier laege eine Abweichung von der Basis.
+  const angepasstIstBasis =
+    angepasst.trim() !== "" && angepasst.trim() === basisText.trim();
+
   const vorschlagSchritte = vorschlag.trim() ? parseScript(vorschlag).length : 0;
 
   const geaendert = vorschlag.trim() ? geaenderteZeilen(basisText, vorschlag).length : 0;
@@ -153,8 +158,8 @@ export function ScriptPanel({
       {angepasst.trim() && !vorschlag && (
         <div className="card card--model">
           <span className="card__label">
-            {angepasst.trim() === basisText.trim()
-              ? `Diese Fassung ist jetzt das Basis-Skript · ${parseScript(angepasst).length} Schritte`
+            {angepasstIstBasis
+              ? `Wortgleich mit dem Basis-Skript · ${parseScript(angepasst).length} Schritte — gilt für alle Firmen`
               : `Angepasste Fassung aktiv · ${parseScript(angepasst).length} Schritte — Basis unverändert`}
           </span>
           <textarea
@@ -166,8 +171,17 @@ export function ScriptPanel({
           />
           <div className="frage-row" style={{ marginBottom: 0 }}>
             <AlsBasisButton neu={angepasst} basis={skript} onBasis={onSkriptChange} />
-            <button type="button" className="btn btn--schmal" onClick={() => onAngepasstChange("")}>
-              Zurück zur Basis
+            <button
+              type="button"
+              className="btn btn--schmal"
+              title={
+                angepasstIstBasis
+                  ? "Der Text bleibt — er ist das Basis-Skript. Weg ist nur die Kopie, die zu dieser Firma gehört."
+                  : "Verwirft die angepasste Fassung. Es gilt wieder das Basis-Skript oben."
+              }
+              onClick={() => onAngepasstChange("")}
+            >
+              {angepasstIstBasis ? "Kopie dieser Firma entfernen" : "Zurück zur Basis"}
             </button>
           </div>
         </div>
