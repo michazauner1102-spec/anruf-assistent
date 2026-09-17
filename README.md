@@ -21,6 +21,23 @@ Texte ersetzt.
   keine Wiederholung
 - Platzhalter wie `[Name]` sind hervorgehoben
 
+**Anrufliste**
+
+- Liste einfügen oder als CSV laden — eine Zeile je Firma, Felder werden am Inhalt
+  erkannt, nicht an der Position
+- **Vorab-Recherche für die ganze Liste**: Website auslesen, Briefing bauen, Name und
+  Anrede übernehmen — auf Wunsch gleich das Skript zuschneiden. Läuft nacheinander,
+  abbrechbar, überspringt nicht erreichbare Seiten
+- Notizen, Briefing, Name, Anrede und zugeschnittenes Skript gehören zum jeweiligen
+  Kontakt. Umschalten lädt alles mit, „Nächster Kontakt" springt zum nächsten offenen
+
+**Auswertung**
+
+- Jeder Anruf mit Ergebnis landet im Protokoll — mit den Einwänden, die dabei erkannt
+  wurden, und dem erreichten Schritt
+- Zeigt Ergebnisverteilung, Einwände nach Häufigkeit samt Terminquote, und wie weit die
+  Gespräche kamen. Bleibt im Browser
+
 **Vorbereitung**
 
 - **Notizen** zum Gegenüber: dessen Website auslesen lassen oder einfügen
@@ -189,6 +206,17 @@ Liegt Recherche vor, kommen zusätzlich ein bis zwei konkrete Details hinein. St
 Schrittzahl, Überschriften und Platzhalter bleiben unangetastet; die neue Fassung liegt
 über dem Basis-Skript und verschwindet mit „Neues Gespräch" in der Nachbereitung.
 
+## Aufbau der Oberfläche
+
+Die Kopfzeile trennt, was zum Anruf gehört, von dem, was man einmal einrichtet:
+
+| vorne | dahinter unter „Einrichten" |
+|---|---|
+| **Liste** — wen rufe ich als Nächstes an | **Skript** — der Gesprächsablauf |
+| **Notizen** — was weiß ich über diese Firma | **Kontext** — das eigene Angebot |
+| **Nachbereitung** — Ergebnis und Zusammenfassung | **Statistik** — was die Anrufe ergeben haben |
+| | **Einstellungen** — Modell und Terminlink |
+
 ## Auf die eigene Branche anpassen
 
 Die mitgelieferte Vorlage ist bewusst neutral gehalten: allgemeine B2B-Einwände, ein
@@ -286,6 +314,8 @@ src/
   components/LiveListener.tsx   Mithören, Treffer, Modell-Abfrage
   components/WrapUpPanel.tsx    Mitschnitt, Zusammenfassung, Checkliste
   components/NotesPanel.tsx     Recherche zum Gegenüber
+  components/ListPanel.tsx      Anrufliste und Vorab-Recherche
+  components/StatsPanel.tsx     Auswertung der Anrufe
   components/ScriptPanel.tsx    eigenes Skript
   components/ContextPanel.tsx   Angaben zum eigenen Angebot
   lib/model.ts                  Ollama und OpenAI-kompatibel hinter einer Schnittstelle
@@ -293,6 +323,8 @@ src/
   lib/streamRoute.ts            gemeinsame Streaming-Mechanik der Modell-Routen
   lib/search.ts                 Einwand-Erkennung
   lib/urlGuard.ts               SSRF-Schutz
+  lib/liste.ts                  Kontakte der Anrufliste
+  lib/protokoll.ts              Anrufprotokoll und Statistik
   data/profile.ts               eigene Angaben (lokal, nicht im Repo)
   data/script.ts                eigenes Skript (lokal)
   data/objections.ts            eigene Einwände (lokal)

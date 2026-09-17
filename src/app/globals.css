@@ -95,6 +95,25 @@ textarea {
   margin-left: auto;
 }
 
+.kopf-trenner {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 2px 2px;
+}
+
+.panel__kopf--frei {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 10px;
+}
+
+.aktiver-kontakt {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .link-btn {
   background: none;
   border: none;
@@ -213,6 +232,76 @@ code {
   flex: 0 0 auto;
   accent-color: var(--text);
   cursor: pointer;
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+.tabelle td {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.tabelle tr:last-child td {
+  border-bottom: none;
+}
+
+.tabelle__zahl {
+  text-align: right;
+  white-space: nowrap;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  padding-left: 12px;
+}
+
+/* ---------- Anrufliste ---------- */
+
+.kontaktliste {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.kontakt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.kontakt:last-child {
+  border-bottom: none;
+}
+
+.kontakt--aktiv {
+  background: var(--surface-2);
+  box-shadow: inset 2px 0 0 var(--text);
+}
+
+.kontakt__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kontakt__meta {
+  color: var(--muted-2);
+  font-size: 0.78rem;
 }
 
 /* ---------- Zwei Spalten ---------- */

@@ -21,12 +21,14 @@ export function LiveListener({
   briefing,
   kontext,
   settings,
+  onEinwandErkannt,
 }: {
   speech: SpeechState;
   notizen: string;
   briefing: string;
   kontext: string;
   settings: Partial<Settings>;
+  onEinwandErkannt?: (id: string) => void;
 }) {
   const {
     unterstuetzt,
@@ -145,6 +147,16 @@ export function LiveListener({
       setLaedt(false);
     }
   };
+
+  // Jeden neu erkannten Einwand einmal melden — Grundlage der Auswertung.
+  const gemeldetRef = useRef("");
+  useEffect(() => {
+    const id = treffer?.objection.id ?? "";
+    if (id && id !== gemeldetRef.current) {
+      gemeldetRef.current = id;
+      onEinwandErkannt?.(id);
+    }
+  }, [treffer, onEinwandErkannt]);
 
   const hatVorschlag = antwort !== "" || bereits.length > (treffer ? 1 : 0);
 

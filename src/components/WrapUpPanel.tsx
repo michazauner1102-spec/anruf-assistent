@@ -18,18 +18,25 @@ export function WrapUpPanel({
   verlauf,
   notizen,
   settings,
+  ergebnis,
+  onErgebnis,
   checkliste,
   onCheckliste,
   onNeuesGespraech,
+  hatNaechsten,
+  onNaechsterKontakt,
 }: {
   verlauf: Zug[];
   notizen: string;
   settings: Partial<Settings>;
+  ergebnis: string;
+  onErgebnis: (wert: string) => void;
   checkliste: boolean[];
   onCheckliste: (index: number) => void;
   onNeuesGespraech: () => void;
+  hatNaechsten: boolean;
+  onNaechsterKontakt: () => void;
 }) {
-  const [ergebnis, setErgebnis] = useState<string>("");
   const [zusammenfassung, setZusammenfassung] = useState("");
   const [laedt, setLaedt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -72,12 +79,17 @@ export function WrapUpPanel({
             type="button"
             className="variant"
             aria-pressed={ergebnis === e}
-            onClick={() => setErgebnis((v) => (v === e ? "" : e))}
+            onClick={() => onErgebnis(ergebnis === e ? "" : e)}
           >
             {e}
           </button>
         ))}
       </div>
+
+      <p className="panel__hinweis">
+        Das Ergebnis genügt für die Auswertung — eine Zusammenfassung lohnt nur, wenn
+        tatsächlich gesprochen wurde.
+      </p>
 
       <div className="frage-row">
         <button
@@ -133,18 +145,33 @@ export function WrapUpPanel({
 
       <div className="panel__fuss">
         <span>Setzt Mitschnitt, Ergebnis und Haken zurück.</span>
-        <button
-          type="button"
-          className="link-btn"
-          onClick={() => {
-            setZusammenfassung("");
-            setErgebnis("");
-            setFehler(null);
-            onNeuesGespraech();
-          }}
-        >
-          Neues Gespräch
-        </button>
+        <span>
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => {
+              setZusammenfassung("");
+              setFehler(null);
+              onNeuesGespraech();
+            }}
+          >
+            Neues Gespräch
+          </button>
+          {hatNaechsten && (
+            <button
+              type="button"
+              className="link-btn"
+              style={{ marginLeft: 16 }}
+              onClick={() => {
+                setZusammenfassung("");
+                setFehler(null);
+                onNaechsterKontakt();
+              }}
+            >
+              Nächster Kontakt →
+            </button>
+          )}
+        </span>
       </div>
     </div>
   );
