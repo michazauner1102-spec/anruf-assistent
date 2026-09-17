@@ -1,7 +1,12 @@
-import { istAnredeStelle, type PlatzhalterWerte } from "@/lib/platzhalter";
+import { istAnredeStelle, istFesteAnrede, type PlatzhalterWerte } from "@/lib/platzhalter";
 
-// Eckige Klammern und die ausgeschriebene Anrede "Frau/Herr" sind beide Einsetzstellen.
-const PLATZHALTER = /(\[[^\]]+\]|Frau\s*\/\s*Herrn?|Herrn?\s*\/\s*Frau)/g;
+/**
+ * Einsetzstellen: eckige Klammern, die offene Anrede "Frau/Herr", und eine fest
+ * geschriebene Anrede, wenn direkt ein Namensplatzhalter folgt — sonst bliebe
+ * ein vom Modell eingebautes "Herr" vor einer Frau stehen.
+ */
+const PLATZHALTER =
+  /(\[[^\]]+\]|Frau\s*\/\s*Herrn?|Herrn?\s*\/\s*Frau|\b(?:Herrn?|Frau)(?=\s+\[(?:Name|Nachname)\]))/g;
 
 /**
  * Hebt Platzhalter wie [Name] hervor. Ist fuer einen Platzhalter ein Wert
@@ -14,9 +19,19 @@ export function ScriptText({ text, werte }: { text: string; werte?: PlatzhalterW
       {text.split(PLATZHALTER).map((teil, i) => {
         if (istAnredeStelle(teil)) {
           const anrede = werte?.anrede;
+          // Ohne bekannte Anrede bleibt eine fest geschriebene stehen, wie sie ist.
+          if (!anrede) {
+            return istFesteAnrede(teil) ? (
+              <span key={i}>{teil}</span>
+            ) : (
+              <mark key={i} className="ph">
+                {teil}
+              </mark>
+            );
+          }
           return (
-            <mark key={i} className={anrede ? "ph ph--gefuellt" : "ph"}>
-              {anrede ?? teil}
+            <mark key={i} className="ph ph--gefuellt">
+              {anrede}
             </mark>
           );
         }

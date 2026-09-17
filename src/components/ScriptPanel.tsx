@@ -33,7 +33,7 @@ export function ScriptPanel({
   const eigenesGesetzt = skript.trim().length > 0;
   const rechercheDa = briefing.trim().length >= 20 || notizen.trim().length >= 40;
 
-  const anpassen = async () => {
+  const anpassen = async (modus: "sprache" | "zuschnitt") => {
     if (laedt) return;
     setLaedt(true);
     setFehler(null);
@@ -41,7 +41,13 @@ export function ScriptPanel({
     try {
       const { text, fehler: f } = await leseStrom(
         "/api/script-adapt",
-        { skript: basisText, briefing, notes: notizen, settings: settingsFuerRequest(settings) },
+        {
+          skript: basisText,
+          briefing,
+          notes: notizen,
+          modus,
+          settings: settingsFuerRequest(settings),
+        },
         setVorschlag,
       );
       if (f) setFehler(f);
@@ -54,6 +60,16 @@ export function ScriptPanel({
   };
 
   const vorschlagSchritte = vorschlag.trim() ? parseScript(vorschlag).length : 0;
+
+  // Zeigt schwarz auf weiss, wie viel tatsaechlich angefasst wurde.
+  const zeilen = (text: string) =>
+    text
+      .split(/\r?\n/)
+      .map((z) => z.trim())
+      .filter(Boolean);
+  const geaendert = vorschlag.trim()
+    ? zeilen(vorschlag).filter((z, i) => z !== zeilen(basisText)[i]).length
+    : 0;
 
   // Modelle ersetzen Platzhalter gern durch echte Werte — das faellt sonst erst
   // im Gespraech auf, wenn der falsche Name dasteht.
@@ -109,26 +125,37 @@ export function ScriptPanel({
       <div className="panel__trenner" />
 
       <p className="panel__hinweis">
-        Schreibt das Skript in gesprochene Sprache um: kurze Sätze, keine Bürowörter, so wie
-        man es am Telefon wirklich sagt. Liegt Recherche im Notizbereich vor, kommen ein bis
-        zwei konkrete Details zu diesem Gesprächspartner dazu. Das Basis-Skript oben bleibt
-        unverändert.
+        Zwei getrennte Eingriffe: <strong>Zuschneiden</strong> lässt Ihre Vorlage stehen und
+        ändert höchstens zwei Zeilen, in die ein Detail aus der Recherche passt.{" "}
+        <strong>Menschlicher formulieren</strong> schreibt dagegen jeden Satz in gesprochene
+        Sprache um. Das Basis-Skript oben bleibt in beiden Fällen unverändert.
       </p>
 
       <div className="frage-row">
         <button
           type="button"
           className="btn btn--info"
-          onClick={() => void anpassen()}
+          onClick={() => void anpassen("zuschnitt")}
+          disabled={laedt || !rechercheDa}
+          title={rechercheDa ? undefined : "Dafür erst Notizen im Notizbereich auswerten"}
+        >
+          {laedt ? "…" : "Auf die Firma zuschneiden"}
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => void anpassen("sprache")}
           disabled={laedt}
         >
-          {laedt
-            ? "schreibt um …"
-            : rechercheDa
-              ? "Menschlicher formulieren und zuschneiden"
-              : "Menschlicher formulieren"}
+          {laedt ? "…" : "Menschlicher formulieren"}
         </button>
       </div>
+
+      {!rechercheDa && (
+        <p className="empty">
+          Zuschneiden braucht Recherche — erst im Notizbereich einfügen und auswerten.
+        </p>
+      )}
       {fehler && <p className="empty">{fehler}</p>}
 
       {angepasst.trim() && !vorschlag && (
@@ -150,7 +177,11 @@ export function ScriptPanel({
       {(laedt || vorschlag) && (
         <div className="card card--model">
           <span className="card__label">
-            Vorschlag{vorschlagSchritte > 0 ? ` · ${vorschlagSchritte} Schritte` : ""}
+            Vorschlag
+            {vorschlagSchritte > 0 ? ` · ${vorschlagSchritte} Schritte` : ""}
+            {vorschlag.trim()
+              ? ` · ${geaendert === 0 ? "nichts geändert" : `${geaendert} Zeile${geaendert === 1 ? "" : "n"} geändert`}`
+              : ""}
           </span>
           {laedt && !vorschlag ? (
             <div className="loading">

@@ -1,5 +1,5 @@
 import { resolveConfig } from "@/lib/model";
-import { buildSkriptMessages } from "@/lib/prompt";
+import { buildSkriptMessages, type SkriptModus } from "@/lib/prompt";
 import { streameModellAntwort } from "@/lib/streamRoute";
 import type { Settings } from "@/lib/settings";
 import { pruefeZiel } from "@/lib/urlGuard";
@@ -12,6 +12,7 @@ export async function POST(request: Request) {
   let skript = "";
   let briefing = "";
   let notizen = "";
+  let modus: SkriptModus = "sprache";
   let ueberschreibung: Partial<Settings> | undefined;
 
   try {
@@ -19,11 +20,13 @@ export async function POST(request: Request) {
       skript?: unknown;
       briefing?: unknown;
       notes?: unknown;
+      modus?: unknown;
       settings?: Partial<Settings>;
     };
     if (typeof body.skript === "string") skript = body.skript.slice(0, MAX_SKRIPT);
     if (typeof body.briefing === "string") briefing = body.briefing;
     if (typeof body.notes === "string") notizen = body.notes;
+    if (body.modus === "zuschnitt") modus = "zuschnitt";
     ueberschreibung = body.settings;
   } catch {
     return Response.json({ error: "Ungültiger Request-Body." }, { status: 400 });
@@ -41,7 +44,7 @@ export async function POST(request: Request) {
 
   return streameModellAntwort(
     resolveConfig(ueberschreibung),
-    buildSkriptMessages(skript, { briefing, notizen }),
+    buildSkriptMessages(skript, { briefing, notizen }, modus),
     {
       timeoutMs: 90_000,
       timeoutText: "Zeitüberschreitung beim Anpassen des Skripts.",

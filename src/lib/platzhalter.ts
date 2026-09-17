@@ -12,8 +12,20 @@ const TITEL =
 /** "Herr", "Frau" oder leer, wenn unbekannt. */
 export type Anrede = "Herr" | "Frau" | "";
 
+/** Aus der Auswertung kommen Namen manchmal klein — fuer die Anrede unbrauchbar. */
+function grossSchreiben(teil: string): string {
+  const PARTIKEL_KLEIN = /^(von|van|vom|zu|zur|der|den|de|del|di|da|le|la)$/i;
+  if (PARTIKEL_KLEIN.test(teil)) return teil.toLowerCase();
+  return teil
+    .split("-")
+    .map((stueck) =>
+      stueck ? stueck.charAt(0).toLocaleUpperCase("de-DE") + stueck.slice(1) : stueck,
+    )
+    .join("-");
+}
+
 export function platzhalterAusName(name: string, anrede: Anrede = ""): PlatzhalterWerte {
-  const sauber = name.trim().replace(/\s+/g, " ");
+  const sauber = name.trim().replace(/\s+/g, " ").split(" ").map(grossSchreiben).join(" ");
   if (!sauber) return {};
 
   // "Dr. Anna Kellermann" ergibt sonst die Anrede "Guten Tag, Dr."
@@ -42,10 +54,17 @@ export function platzhalterAusName(name: string, anrede: Anrede = ""): Platzhalt
  * Viele Skripte schreiben die Anrede als "Frau/Herr" aus, weil beim Verfassen
  * noch offen ist, wer abnimmt. Ist die Anrede bekannt, wird daraus die richtige.
  */
-export const ANREDE_MUSTER = /(Frau\s*\/\s*Herrn?|Herrn?\s*\/\s*Frau)/g;
-
 export function istAnredeStelle(teil: string): boolean {
-  return /^(Frau\s*\/\s*Herrn?|Herrn?\s*\/\s*Frau)$/.test(teil);
+  return /^(Frau\s*\/\s*Herrn?|Herrn?\s*\/\s*Frau|Herrn?|Frau)$/.test(teil.trim());
+}
+
+/**
+ * Eine fest geschriebene Anrede ("Herr [Nachname]") zaehlt nur dann als
+ * Einsetzstelle, wenn direkt ein Namensplatzhalter folgt. Sonst wuerde jedes
+ * beiläufige "Herr" im Text ersetzt.
+ */
+export function istFesteAnrede(teil: string): boolean {
+  return /^(Herrn?|Frau)$/.test(teil.trim());
 }
 
 /** Sucht in einem Briefing die Zeile "Anrede: …". */

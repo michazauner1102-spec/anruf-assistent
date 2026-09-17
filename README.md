@@ -161,16 +161,22 @@ Tool mit dem Gesprächspartner aus den Notizen. Für die Anrede versteht es sowo
 `[Anrede]` als auch die ausgeschriebene Form `Frau/Herr`. Leeres Feld = mitgeliefertes
 Skript.
 
+Zwei getrennte Eingriffe, beide lassen das Basis-Skript unangetastet:
+
+**Auf die Firma zuschneiden:** Ihre Vorlage bleibt stehen. Geändert werden höchstens zwei
+Zeilen, in die ein konkretes Detail aus der Recherche wirklich passt — keine sprachliche
+Glättung, keine Umstellung. Der Vorschlag zeigt an, wie viele Zeilen angefasst wurden; im
+Test war es bei 15 Zeilen genau eine.
+
 **Menschlicher formulieren:** Der Knopf schreibt das Skript in gesprochene Sprache um —
 kurze Hauptsätze, höchstens ein Nebensatz, keine Substantivketten, keine Bürowörter wie
 „Lösung", „Prozess" oder „Mehrwert". Aus „Ich biete Ihnen einen kostenlosen
 30-Minuten-Prozesscheck an" wird „Ich schau mir das mit Ihnen an. 30 Minuten, kostet
 nichts."
 
-Liegt Recherche im Notizbereich vor, kommen zusätzlich ein bis zwei konkrete Details zu
-diesem Gesprächspartner hinein. Struktur, Schrittzahl, Überschriften und Platzhalter
-bleiben unangetastet; das Basis-Skript wird nicht überschrieben — die neue Fassung liegt
-darüber und verschwindet mit „Neues Gespräch" in der Nachbereitung.
+Liegt Recherche vor, kommen zusätzlich ein bis zwei konkrete Details hinein. Struktur,
+Schrittzahl, Überschriften und Platzhalter bleiben unangetastet; die neue Fassung liegt
+über dem Basis-Skript und verschwindet mit „Neues Gespräch" in der Nachbereitung.
 
 ## Auf die eigene Branche anpassen
 

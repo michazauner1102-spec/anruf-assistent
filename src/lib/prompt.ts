@@ -312,7 +312,8 @@ WAS UNANGETASTET BLEIBT:
    Überschriften. Nichts hinzufügen, nichts weglassen.
 2. Die Absicht jedes Schritts. Aus einer Frage wird keine Aussage.
 3. Schreibweisen wie "Frau/Herr" bleiben genauso stehen — das Tool setzt die
-   richtige Anrede selbst ein.
+   richtige Anrede selbst ein. Schreibe NIEMALS eine konkrete Anrede hin: kein
+   "Herr", kein "Frau" vor einem Namen. Du weisst nicht, wer abnimmt.
 4. Platzhalter in eckigen Klammern. Aus [Vorname] wird NIE ein echter Name —
    [Vorname] bleibt buchstäblich [Vorname], ebenso [Name] und [Nachname]. Das
    Tool setzt sie später selbst ein. Ersetzt du sie, ist das ein Fehler.
@@ -328,9 +329,30 @@ Antworte ausschließlich im Skript-Format, ohne Vorwort und ohne Erklärung:
 "#" beginnt einen Schritt, ">" ist ein Hinweis, jede andere Zeile ist ein
 gesprochener Satz.`;
 
+const SKRIPT_ZUSCHNITT_PROMPT = `Du passt ein bestehendes Telefonskript an eine konkrete Firma an — chirurgisch,
+nicht neu geschrieben.
+
+1. Gib jede Zeile UNVERÄNDERT zurück, buchstabengetreu. Das ist der Normalfall.
+2. Einzige Ausnahme: höchstens ZWEI gesprochene Zeilen, in die ein konkretes
+   Detail aus der Recherche wirklich passt. Nur dort änderst du etwas, und auch
+   dort so wenig wie möglich.
+3. Keine sprachliche Glättung, keine Umstellung, keine Verbesserung. Gefällt
+   dir eine Formulierung nicht, lässt du sie trotzdem stehen. Das ist nicht
+   deine Aufgabe.
+4. Überschriften, Hinweiszeilen mit ">", Reihenfolge und Platzhalter in eckigen
+   Klammern bleiben unangetastet. Schreibe NIEMALS eine konkrete Anrede hin:
+   kein "Herr", kein "Frau" vor einem Namen — "Frau/Herr" bleibt stehen.
+5. Erfinde nichts. Kein Detail, das nicht in der Recherche steht. Passt nichts,
+   gibst du das Skript vollständig unverändert zurück.
+
+Antworte ausschließlich im Skript-Format, ohne Vorwort und ohne Erklärung.`;
+
+export type SkriptModus = "sprache" | "zuschnitt";
+
 export function buildSkriptMessages(
   basisSkript: string,
   recherche: { briefing?: string; notizen?: string },
+  modus: SkriptModus = "sprache",
 ): ChatNachricht[] {
   // Die Zeile "Ansprechpartner" fliegt raus: sie verleitet das Modell dazu, den
   // Platzhalter [Vorname] durch den echten Namen zu ersetzen. Gebraucht wird sie
@@ -354,7 +376,10 @@ export function buildSkriptMessages(
   teile.push(`Basis-Skript:\n<<<SKRIPT>>>\n${basisSkript.trim()}\n<<<ENDE>>>`);
 
   return [
-    { role: "system", content: SKRIPT_ANPASSUNG_PROMPT },
+    {
+      role: "system",
+      content: modus === "zuschnitt" ? SKRIPT_ZUSCHNITT_PROMPT : SKRIPT_ANPASSUNG_PROMPT,
+    },
     { role: "user", content: teile.join("\n\n") },
   ];
 }
