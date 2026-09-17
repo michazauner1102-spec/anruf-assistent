@@ -152,9 +152,13 @@ export function ScriptPanel({
           <span className="card__label">
             Angepasste Fassung aktiv · {parseScript(angepasst).length} Schritte — Basis unverändert
           </span>
-          <pre className="mitschnitt" style={{ margin: 0, border: "none", padding: 0 }}>
-            {angepasst}
-          </pre>
+          <textarea
+            className="input textarea"
+            value={angepasst}
+            rows={14}
+            spellCheck={false}
+            onChange={(e) => onAngepasstChange(e.target.value)}
+          />
           <div className="frage-row" style={{ marginBottom: 0 }}>
             <button type="button" className="btn btn--schmal" onClick={() => onAngepasstChange("")}>
               Zurück zur Basis

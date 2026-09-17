@@ -40,7 +40,10 @@ export function NotesPanel({
   const [laedt, setLaedt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const [skriptLaedt, setSkriptLaedt] = useState(false);
-  const [skriptErgebnis, setSkriptErgebnis] = useState<string[] | null>(null);
+  const [skriptErgebnis, setSkriptErgebnis] = useState<{ text: string; geaendert: string[] } | null>(
+    null,
+  );
+  const [ganzesSkript, setGanzesSkript] = useState(false);
 
   const genugNotizen = notizen.trim().length >= 40;
 
@@ -51,6 +54,7 @@ export function NotesPanel({
     setSkriptLaedt(true);
     setFehler(null);
     setSkriptErgebnis(null);
+    setGanzesSkript(false);
     try {
       const { text, fehler: f } = await skriptAnpassen({
         basisText: basisSkript,
@@ -64,7 +68,7 @@ export function NotesPanel({
         return;
       }
       onAngepasstChange(text);
-      setSkriptErgebnis(geaenderteZeilen(basisSkript, text));
+      setSkriptErgebnis({ text, geaendert: geaenderteZeilen(basisSkript, text) });
     } catch {
       setFehler("Verbindung zur App unterbrochen.");
     } finally {
@@ -177,18 +181,42 @@ export function NotesPanel({
         <div className="card card--model">
           <span className="card__label">
             Skript angepasst ·{" "}
-            {skriptErgebnis.length === 0
+            {skriptErgebnis.geaendert.length === 0
               ? "nichts geändert, es passte nichts"
-              : `${skriptErgebnis.length} Zeile${skriptErgebnis.length === 1 ? "" : "n"} geändert`}
+              : `${skriptErgebnis.geaendert.length} Zeile${skriptErgebnis.geaendert.length === 1 ? "" : "n"} geändert`}
           </span>
-          {skriptErgebnis.map((zeile) => (
-            <p key={zeile} className="speech">
-              {zeile}
-            </p>
-          ))}
+
+          {!ganzesSkript &&
+            skriptErgebnis.geaendert.map((zeile) => (
+              <p key={zeile} className="speech">
+                {zeile}
+              </p>
+            ))}
+
+          {ganzesSkript && (
+            <textarea
+              className="input textarea"
+              value={skriptErgebnis.text}
+              rows={14}
+              spellCheck={false}
+              onChange={(e) => {
+                const text = e.target.value;
+                setSkriptErgebnis({ text, geaendert: geaenderteZeilen(basisSkript, text) });
+                onAngepasstChange(text);
+              }}
+            />
+          )}
+
           <div className="frage-row" style={{ marginBottom: 0 }}>
+            <button
+              type="button"
+              className="btn btn--schmal"
+              onClick={() => setGanzesSkript((offen) => !offen)}
+            >
+              {ganzesSkript ? "Nur Änderungen zeigen" : "Ganzes Skript anzeigen"}
+            </button>
             <button type="button" className="btn btn--schmal" onClick={onZumSkript}>
-              Im Skript ansehen
+              Im Skript-Bereich öffnen
             </button>
             <button
               type="button"
@@ -196,6 +224,7 @@ export function NotesPanel({
               onClick={() => {
                 onAngepasstChange("");
                 setSkriptErgebnis(null);
+                setGanzesSkript(false);
               }}
             >
               Rückgängig

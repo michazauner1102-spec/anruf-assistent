@@ -25,8 +25,9 @@ Texte ersetzt.
 
 - **Notizen** zum Gegenüber: dessen Website auslesen lassen oder einfügen
 - **Skript anpassen direkt aus den Notizen**: ein Klick nimmt das hinterlegte Skript und
-  schneidet es auf diese Firma zu — ohne Umweg über den Skript-Bereich. Zeigt an, welche
-  Zeilen sich geändert haben, mit „Rückgängig"
+  schneidet es auf diese Firma zu — ohne Umweg über den Skript-Bereich. Zeigt erst nur die
+  geänderten Zeilen, auf Wunsch das ganze Skript, dort auch gleich korrigierbar. Mit
+  „Rückgängig"
 - **Notizen auswerten**: ein Knopfdruck macht aus roher Recherche ein Briefing —
   Ansprechpartner, Kurzprofil, Ansatzpunkt, Gesprächsaufhänger mit dem jeweiligen
   Detail, erwartbare Einwände, Vorsicht. Das Briefing geht als Kontext mit ins Gespräch
@@ -166,8 +167,9 @@ Skript.
 
 Der schnellste Weg führt über den Notizbereich: Recherche einfügen oder Website auslesen,
 dann **„Skript anpassen"**. Das nimmt das hinterlegte Skript, schneidet es zu und meldet,
-welche Zeilen sich geändert haben. Ein Briefing braucht es dafür nicht — die Rohnotizen
-genügen.
+welche Zeilen sich geändert haben. „Ganzes Skript anzeigen" klappt die vollständige
+Fassung auf — dort lässt sie sich direkt nachbessern, die Änderung greift sofort im
+Gesprächsablauf. Ein Briefing braucht es dafür nicht, die Rohnotizen genügen.
 
 Im Skript-Bereich selbst gibt es dieselbe Anpassung mit Vorschau, dazu einen zweiten
 Eingriff. Beide lassen das Basis-Skript unangetastet:
